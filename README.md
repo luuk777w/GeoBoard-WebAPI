@@ -1,1 +1,1 @@
-# Geoboard WebAPI
+# GeoBoard WebAPI
