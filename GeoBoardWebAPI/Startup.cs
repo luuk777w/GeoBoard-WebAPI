@@ -152,7 +152,7 @@ namespace GeoBoardWebAPI
                 endpoints.MapHub<HomeHub>("/homehub");
             });
 
-            SeedDatabase(services).GetAwaiter().GetResult();
+            //SeedDatabase(services).GetAwaiter().GetResult();
         }
 
         public async Task SeedDatabase(IServiceProvider services)
