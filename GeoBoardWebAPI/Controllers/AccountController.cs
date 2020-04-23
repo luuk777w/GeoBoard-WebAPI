@@ -115,11 +115,14 @@ namespace GeoBoardWebAPI.Controllers
             if (await _appUserManager.FindByEmailAsync(model.Email) != null) return BadRequest("Email already in use");
             if (await _appUserManager.FindByNameAsync(model.Username) != null) return BadRequest("Username already in use");
 
-            var user = new User();
-            user.Email = model.Email;
-            user.CreationDateTime = DateTime.UtcNow;
-            user.UserName = model.Username;
-            user.EmailConfirmed = false;
+            var user = new User
+            {
+                Email = model.Email,
+                CreationDateTime = DateTime.UtcNow,
+                UserName = model.Username,
+                EmailConfirmed = false
+            };
+
             var result = await _appUserManager.CreateAsync(user, model.Password);
             if (!result.Succeeded) return BadRequest(result.Errors);
 
@@ -135,7 +138,6 @@ namespace GeoBoardWebAPI.Controllers
             await _appUserManager.AddToRoleAsync(await _appUserManager.FindByNameAsync(model.Username), "User");
 
             await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Confirm your account"], emailModel, "Email/ConfirmUserAccount");
-
 
             return Ok();
         }
