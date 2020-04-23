@@ -1,0 +1,124 @@
+html {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px; }
+
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%; }
+
+:root {
+  --blue500: #2196F3;
+  --green500: #4CAF50;
+  --amber500: #FF9800;
+  --red700: #D32F2F;
+  --gray50: #FAFAFA; }
+
+.button {
+  border: none;
+  color: white;
+  padding: 0.9rem 1rem;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 0.2rem;
+  outline: none; }
+
+a.button {
+  display: inline-block;
+  font-family: 'Open Sans', sans-serif;
+  padding: 0.9rem 0; }
+
+/* 
+* Blue button
+*/
+.button-solid-blue {
+  background-color: #2196F3;
+  box-shadow: 0 1px 3px #1E88E5; }
+
+.button-solid-blue:hover {
+  background-color: #1976D2; }
+
+.button-blue {
+  border: #2196F3 solid 1px;
+  background-color: transparent;
+  color: #2196F3; }
+
+.button-blue:hover {
+  background-color: #2196F3;
+  color: white; }
+
+.button[disabled] {
+  background-color: #BDBDBD;
+  box-shadow: 0 1px 3px #424242; }
+
+.button[disabled]:hover {
+  background-color: #BDBDBD !important; }
+
+/* 
+* Green button
+*/
+.button-solid-green {
+  background-color: #4CAF50;
+  box-shadow: 0 1px 3px #388E3C; }
+
+.button-solid-green:hover {
+  background-color: #388E3C; }
+
+.button-green {
+  border: #4CAF50 solid 1px;
+  background-color: transparent;
+  color: #4CAF50; }
+
+.button-green:hover {
+  background-color: #4CAF50;
+  color: white; }
+
+/* 
+* Red button
+*/
+.button-solid-red {
+  background-color: #E53935;
+  box-shadow: 0 1px 3px #D32F2F; }
+
+.button-solid-red:hover {
+  background-color: #C62828; }
+
+.button-red {
+  border: #E53935 solid 1px;
+  background-color: transparent;
+  color: #E53935; }
+
+.button-red:hover {
+  background-color: #D32F2F;
+  color: white; }
+
+.button-transparent {
+  background-color: transparent; }
+
+.button-pd-0 {
+  padding: 0px; }
+
+.button-pd-1 {
+  padding: 0.225rem 0.25rem; }
+
+.button-pd-2 {
+  padding: 0.45rem 0.5rem; }
+
+.button-pd-3 {
+  padding: 0.9rem 1rem; }
+
+.button-text-black {
+  color: #212121; }
+
+
+input[type=text], input[type=password], input[type=email] {
+  width: 100%;
+  padding: 8px 14px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  font-size: 1rem;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px; }
