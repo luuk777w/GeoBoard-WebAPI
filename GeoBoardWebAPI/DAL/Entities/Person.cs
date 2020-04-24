@@ -9,7 +9,7 @@ namespace GeoBoardWebAPI.DAL.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        public DateTimeOffset CreationDateTime { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
         public virtual Country Country { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }

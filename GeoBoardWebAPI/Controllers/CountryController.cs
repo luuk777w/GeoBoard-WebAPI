@@ -28,7 +28,7 @@ namespace GeoBoardWebAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
-            return await Ok<Country, CountryViewModel>(CountryRepository.GetAll(), (x => x.CreationDateTime, System.ComponentModel.ListSortDirection.Ascending));
+            return await Ok<Country, CountryViewModel>(CountryRepository.GetAll(), (x => x.CreatedAt, System.ComponentModel.ListSortDirection.Ascending));
         }
 
         // GET: api/Interest/john.doe@email.com

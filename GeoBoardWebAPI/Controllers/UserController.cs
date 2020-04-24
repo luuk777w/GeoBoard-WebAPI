@@ -33,7 +33,7 @@ namespace GeoBoardWebAPI.Controllers
         public async Task<IActionResult> Get()
         {
             var result = UserRepository.GetAll();
-            return await Ok<User, UserViewModel>(result, (x => x.CreationDateTime, System.ComponentModel.ListSortDirection.Ascending));
+            return await Ok<User, UserViewModel>(result, (x => x.CreatedAt, System.ComponentModel.ListSortDirection.Ascending));
         }
 
         // GET: api/Interest/john.doe@email.com

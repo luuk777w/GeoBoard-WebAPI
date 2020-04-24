@@ -23,11 +23,11 @@ namespace GeoBoardWebAPI.DAL.Entities
 
         public bool IsLocked { get; set; }
 
-        public DateTimeOffset CreationDateTime { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         public User()
         {
-            CreationDateTime = DateTimeOffset.UtcNow;
+            CreatedAt = DateTimeOffset.UtcNow;
         }
     }
 }

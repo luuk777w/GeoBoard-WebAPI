@@ -118,7 +118,7 @@ namespace GeoBoardWebAPI.Controllers
             var user = new User
             {
                 Email = model.Email,
-                CreationDateTime = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 UserName = model.Username,
                 EmailConfirmed = false
             };
@@ -402,7 +402,7 @@ namespace GeoBoardWebAPI.Controllers
 
                 var user = new User();
                 user.Email = model.Email;
-                user.CreationDateTime = DateTime.UtcNow;
+                user.CreatedAt = DateTime.UtcNow;
                 user.UserName = model.Email;
                 user.EmailConfirmed = false;
                 user.Person.Firstname = model.Firstname;

@@ -53,7 +53,7 @@ namespace GeoBoardWebAPI.DAL.Repositories
             }
             else
             {
-                entity.CreationDateTime = DateTime.UtcNow;
+                entity.CreatedAt = DateTime.UtcNow;
                 Context.Entry(entity).State = EntityState.Added;
             }
             await SaveChangesAsync();
@@ -67,7 +67,7 @@ namespace GeoBoardWebAPI.DAL.Repositories
             }
             else
             {
-                entity.CreationDateTime = DateTime.UtcNow;
+                entity.CreatedAt = DateTime.UtcNow;
                 Context.Entry(entity).State = EntityState.Added;
             }
             SaveChanges();
@@ -75,13 +75,13 @@ namespace GeoBoardWebAPI.DAL.Repositories
 
         public void Add(T entity)
         {
-            entity.CreationDateTime = DateTime.UtcNow;
+            entity.CreatedAt = DateTime.UtcNow;
             Context.Set<T>().Add(entity);
         }
 
         public async Task AddAsync(T entity)
         {
-            entity.CreationDateTime = DateTime.UtcNow;
+            entity.CreatedAt = DateTime.UtcNow;
             await Context.Set<T>().AddAsync(entity);
         }
 
