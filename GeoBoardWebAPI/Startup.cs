@@ -495,7 +495,7 @@ namespace GeoBoardWebAPI
                             Firstname = "Luuk",
                             Country = await dbContext.Countries.FirstAsync(x => x.LanguageCode == "nl-NL"),
                         },
-                        Settings = new UserSettings
+                        Settings = new UserSetting
                         {
                             Language = dbContext.Countries.FirstOrDefault(x => x.LongCode.Equals("NLD")),
                         },

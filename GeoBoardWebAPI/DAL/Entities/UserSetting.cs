@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GeoBoardWebAPI.DAL.Entities
 {
-    public class UserSettings : IAppEntity
+    public class UserSetting : IAppEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
