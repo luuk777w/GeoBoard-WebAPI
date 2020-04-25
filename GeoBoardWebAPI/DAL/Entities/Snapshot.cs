@@ -24,15 +24,16 @@ namespace GeoBoardWebAPI.DAL.Entities
         public string Name { get; set; }
 
         /// <summary>
-        /// The board of which a snapshot was taken.
+        /// The user who created this snapshot and to whom it belongs.
         /// </summary>
         [Required]
-        public Guid BoardId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
-        /// The board of which a snapshot was taken.
+        /// The user who created this snapshot and to whom it belongs.
         /// </summary>
-        public Board Board { get; set; }
+        [ForeignKey(nameof(UserId))]
+        public User CreatedBy { get; set; }
 
         /// <summary>
         /// The creation date and time of which this snapshot was created.
@@ -44,10 +45,5 @@ namespace GeoBoardWebAPI.DAL.Entities
         /// The collection of elements on this board.
         /// </summary>
         public ICollection<SnapshotElement> Elements { get; set; }
-
-        /// <summary>
-        /// The collection of users who are part of this board.
-        /// </summary>
-        public ICollection<UserSnapshot> Users { get; set; }
     }
 }

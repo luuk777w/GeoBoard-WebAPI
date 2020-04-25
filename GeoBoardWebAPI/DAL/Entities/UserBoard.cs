@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GeoBoardWebAPI.DAL.Entities
 {
@@ -10,10 +11,9 @@ namespace GeoBoardWebAPI.DAL.Entities
     {
         /// <summary>
         /// The unique identifier of this pivot element.
-        /// 
-        /// OPMERKING: Het is technisch beter denk ik om de UserId en BoardId als samengestelde sleutel te kiezen.
-        /// Hoewel een ID voor het geheel ook geen slecht idee is.
+        /// Does not act as primary key.
         /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         /// <summary>
