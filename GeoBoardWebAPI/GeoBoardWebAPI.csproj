@@ -3,7 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>aspnet-GeoBoardWebAPI-52153D58-05EC-4BFF-8CB2-299899BC4F00</UserSecretsId>
-    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
+    <Authors>luuk777w, matthijs110</Authors>
+    <Company>LuxMatter</Company>
+    <PackageId>GeoBoard-WebAPI</PackageId>
+    <PackageProjectUrl>https://api.geoboard.luukwuijster.io</PackageProjectUrl>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <ItemGroup>
