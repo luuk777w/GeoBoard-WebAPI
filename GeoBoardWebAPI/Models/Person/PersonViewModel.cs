@@ -16,9 +16,6 @@ namespace GeoBoardWebAPI.Models.Person
         public string Lastname { get; set; }
 
         [Orderable, Searchable]
-        public string Insertions { get; set; }
-
-        [Orderable, Searchable]
         public string Initials { get; set; }
 
         public CountryViewModel Country { get; set; }

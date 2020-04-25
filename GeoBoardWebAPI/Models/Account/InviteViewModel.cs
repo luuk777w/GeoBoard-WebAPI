@@ -14,9 +14,6 @@ namespace GeoBoardWebAPI.Models
         public string Firstname { get; set; }
 
         [DataType(DataType.Text)]
-        public string Insertions { get; set; }
-
-        [DataType(DataType.Text)]
         [AppRequired]
         public string Lastname { get; set; }
 

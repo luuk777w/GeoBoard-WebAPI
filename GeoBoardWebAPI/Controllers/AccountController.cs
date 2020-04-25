@@ -405,9 +405,8 @@ namespace GeoBoardWebAPI.Controllers
                 user.CreatedAt = DateTime.UtcNow;
                 user.UserName = model.Email;
                 user.EmailConfirmed = false;
-                user.Person.Firstname = model.Firstname;
-                user.Person.Lastname = model.Lastname;
-                user.Person.Insertions = model.Insertions;
+                user.Person.FirstName = model.Firstname;
+                user.Person.LastName = model.Lastname;
                 var result = await _appUserManager.CreateAsync(user);
                 if (!result.Succeeded) return BadRequest(result.Errors);
 

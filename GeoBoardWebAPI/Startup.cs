@@ -491,8 +491,8 @@ namespace GeoBoardWebAPI
                         Person = new Person
                         {
                             Id = new Guid("07e35556-54f2-4975-a563-417eb5fbfa9f"),
-                            Lastname = "Wuijster",
-                            Firstname = "Luuk",
+                            LastName = "Wuijster",
+                            FirstName = "Luuk",
                             Country = await dbContext.Countries.FirstAsync(x => x.LanguageCode == "nl-NL"),
                         },
                         Settings = new UserSetting
