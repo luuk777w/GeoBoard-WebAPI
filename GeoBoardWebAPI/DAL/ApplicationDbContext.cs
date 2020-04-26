@@ -27,30 +27,6 @@ namespace GeoBoardWebAPI.DAL
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<Board>()
-                .HasOne(b => b.CreatedBy)
-                .WithMany(u => u.CreatedBoards);
-
-            builder.Entity<BoardElement>()
-                .HasOne(be => be.Board)
-                .WithMany(b => b.Elements);
-
-            builder.Entity<Person>()
-                .HasOne(p => p.Country)
-                .WithMany();
-
-            builder.Entity<Snapshot>()
-                .HasOne(s => s.CreatedBy)
-                .WithMany(u => u.CreatedSnapshots);
-
-            builder.Entity<SnapshotElement>()
-                .HasOne(se => se.Snapshot)
-                .WithMany(s => s.Elements);
-
-            //builder.Entity<User>()
-            //    .HasOne(u => u.Person)
-            //    .WithOne();
-
             builder.Entity<UserBoard>(ub =>
             {
                 // Define the composite primary key.
@@ -63,16 +39,17 @@ namespace GeoBoardWebAPI.DAL
                     .WithMany(u => u.Boards);
             });
 
-            //builder.Entity<UserSetting>(us =>
-            //{
+            builder.Entity<SnapshotSnapshotElement>(us =>
+            {
+                // Define the composite primary key.
+                us.HasKey(us => new { us.SnapshotId, us.SnapshotElementId });
 
-            //});
+                us.HasOne(us => us.Snapshot)
+                  .WithMany();
 
-            //builder.Entity<UserSnapshot>(us =>
-            //{
-            //    // Define the composite primary key.
-            //    us.HasKey(us => new { us.UserId, us.SnapshotId });
-            //});
+                us.HasOne(us => us.User)
+                  .WithMany(u => u.Snapshots);
+            });
         }
     }
 }

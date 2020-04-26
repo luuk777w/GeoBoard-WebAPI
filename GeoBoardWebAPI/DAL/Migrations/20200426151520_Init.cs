@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace GeoBoardWebAPI.Migrations
+namespace GeoBoardWebAPI.DAL.Migrations
 {
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -11,7 +11,7 @@ namespace GeoBoardWebAPI.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true)
@@ -26,7 +26,7 @@ namespace GeoBoardWebAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CreationDateTime = table.Column<DateTimeOffset>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false),
                     ShortCode = table.Column<string>(nullable: false),
                     LongCode = table.Column<string>(nullable: false),
                     LanguageCode = table.Column<string>(nullable: false),
@@ -46,7 +46,7 @@ namespace GeoBoardWebAPI.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<string>(nullable: false),
+                    RoleId = table.Column<Guid>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
                 },
@@ -66,12 +66,10 @@ namespace GeoBoardWebAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CreationDateTime = table.Column<DateTimeOffset>(nullable: false),
+                    FirstName = table.Column<string>(nullable: true),
+                    LastName = table.Column<string>(nullable: true),
                     CountryId = table.Column<Guid>(nullable: true),
-                    Firstname = table.Column<string>(nullable: true),
-                    Lastname = table.Column<string>(nullable: true),
-                    Insertions = table.Column<string>(nullable: true),
-                    Initials = table.Column<string>(nullable: true)
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -89,7 +87,7 @@ namespace GeoBoardWebAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CreationDateTime = table.Column<DateTimeOffset>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false),
                     LanguageId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
@@ -107,7 +105,7 @@ namespace GeoBoardWebAPI.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<Guid>(nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
@@ -124,8 +122,7 @@ namespace GeoBoardWebAPI.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     PersonId = table.Column<Guid>(nullable: true),
                     SettingsId = table.Column<Guid>(nullable: true),
-                    IsLocked = table.Column<bool>(nullable: false),
-                    CreationDateTime = table.Column<DateTimeOffset>(nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -150,7 +147,7 @@ namespace GeoBoardWebAPI.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
                 },
@@ -172,7 +169,7 @@ namespace GeoBoardWebAPI.Migrations
                     LoginProvider = table.Column<string>(nullable: false),
                     ProviderKey = table.Column<string>(nullable: false),
                     ProviderDisplayName = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: false)
+                    UserId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -189,8 +186,8 @@ namespace GeoBoardWebAPI.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(nullable: false),
-                    RoleId = table.Column<string>(nullable: false)
+                    UserId = table.Column<Guid>(nullable: false),
+                    RoleId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -213,7 +210,7 @@ namespace GeoBoardWebAPI.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false),
                     LoginProvider = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Value = table.Column<string>(nullable: true)
@@ -223,6 +220,157 @@ namespace GeoBoardWebAPI.Migrations
                     table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Boards",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false),
+                    IsLocked = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Boards", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Boards_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Snapshots",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Snapshots", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Snapshots_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BoardElements",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    BoardId = table.Column<Guid>(nullable: false),
+                    ImagePath = table.Column<string>(nullable: true),
+                    Note = table.Column<string>(nullable: true),
+                    Direction = table.Column<int>(nullable: true),
+                    UserId = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BoardElements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BoardElements_Boards_BoardId",
+                        column: x => x.BoardId,
+                        principalTable: "Boards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BoardElements_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserBoards",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(nullable: false),
+                    BoardId = table.Column<Guid>(nullable: false),
+                    Id = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserBoards", x => new { x.BoardId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_UserBoards_Boards_BoardId",
+                        column: x => x.BoardId,
+                        principalTable: "Boards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserBoards_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SnapshotElements",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    SnapshotId = table.Column<Guid>(nullable: false),
+                    ImagePath = table.Column<string>(nullable: true),
+                    Note = table.Column<string>(nullable: true),
+                    Direction = table.Column<int>(nullable: true),
+                    UserId = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SnapshotElements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SnapshotElements_Snapshots_SnapshotId",
+                        column: x => x.SnapshotId,
+                        principalTable: "Snapshots",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SnapshotElements_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserSnapshots",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false),
+                    SnapshotId = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserSnapshots", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserSnapshots_Snapshots_SnapshotId",
+                        column: x => x.SnapshotId,
+                        principalTable: "Snapshots",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserSnapshots_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -279,14 +427,59 @@ namespace GeoBoardWebAPI.Migrations
                 column: "SettingsId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BoardElements_BoardId",
+                table: "BoardElements",
+                column: "BoardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BoardElements_UserId",
+                table: "BoardElements",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Boards_UserId",
+                table: "Boards",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Persons_CountryId",
                 table: "Persons",
                 column: "CountryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SnapshotElements_SnapshotId",
+                table: "SnapshotElements",
+                column: "SnapshotId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SnapshotElements_UserId",
+                table: "SnapshotElements",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Snapshots_UserId",
+                table: "Snapshots",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserBoards_UserId",
+                table: "UserBoards",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserSettings_LanguageId",
                 table: "UserSettings",
                 column: "LanguageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSnapshots_SnapshotId",
+                table: "UserSnapshots",
+                column: "SnapshotId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSnapshots_UserId",
+                table: "UserSnapshots",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -307,7 +500,25 @@ namespace GeoBoardWebAPI.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "BoardElements");
+
+            migrationBuilder.DropTable(
+                name: "SnapshotElements");
+
+            migrationBuilder.DropTable(
+                name: "UserBoards");
+
+            migrationBuilder.DropTable(
+                name: "UserSnapshots");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Boards");
+
+            migrationBuilder.DropTable(
+                name: "Snapshots");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

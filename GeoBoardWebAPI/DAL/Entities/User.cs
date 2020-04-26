@@ -11,7 +11,6 @@ namespace GeoBoardWebAPI.DAL.Entities
     public class User : IdentityUser<Guid>, IAppEntity
     {
         public static readonly string[] Roles = { "Administrator", "User" };
-        
         public virtual Person Person { get; set; }
         public virtual UserSetting Settings { get; set; }
 
@@ -24,24 +23,14 @@ namespace GeoBoardWebAPI.DAL.Entities
         public DateTimeOffset CreatedAt { get; set; }
 
         /// <summary>
-        /// The collection of boards this user has created.
-        /// </summary>
-        public ICollection<Board> CreatedBoards { get; set; }
-
-        /// <summary>
         /// The collection of boards this user owns.
         /// </summary>
         public ICollection<UserBoard> Boards { get; set; }
 
         /// <summary>
-        /// The collection of snapshots this user has created.
-        /// </summary>
-        public ICollection<Snapshot> CreatedSnapshots { get; set; }
-
-        /// <summary>
         /// The collection of snapshots this user owns.
         /// </summary>
-        public ICollection<UserSnapshot> Snapshots { get; set; }
+        public ICollection<Snapshot> Snapshots { get; set; }
 
         public User()
         {

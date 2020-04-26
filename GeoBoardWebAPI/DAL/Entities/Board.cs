@@ -33,7 +33,7 @@ namespace GeoBoardWebAPI.DAL.Entities
         /// The user who created this board.
         /// </summary>
         [ForeignKey(nameof(UserId))]
-        public User CreatedBy { get; set; }
+        public User Owner { get; set; }
 
         /// <summary>
         /// The date and time of when this board was created.

@@ -13,7 +13,6 @@ namespace GeoBoardWebAPI.DAL.Entities
         /// The unique identifier of this pivot element.
         /// Does not act as primary key.
         /// </summary>
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         /// <summary>
