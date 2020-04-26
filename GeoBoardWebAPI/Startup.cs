@@ -50,7 +50,7 @@ namespace GeoBoardWebAPI
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<User, IdentityRole>()
+            services.AddIdentity<User, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -499,7 +499,7 @@ namespace GeoBoardWebAPI
                         {
                             Language = dbContext.Countries.FirstOrDefault(x => x.LongCode.Equals("NLD")),
                         },
-                        Id = "07e35556-54f2-4975-a563-417eb5fbfa7f"
+                        Id = new Guid("07e35556-54f2-4975-a563-417eb5fbfa7f")
                     };
                     var result = await userManager.CreateAsync(userToInsert, "Wachtwoord12");
 

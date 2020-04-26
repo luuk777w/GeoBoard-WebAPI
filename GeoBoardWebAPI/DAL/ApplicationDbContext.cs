@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using GeoBoardWebAPI.DAL.Entities;
+using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace GeoBoardWebAPI.DAL
 {
-    public class ApplicationDbContext : IdentityDbContext<User>
+    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         public DbSet<Board> Boards { get; set; }
         public DbSet<BoardElement> BoardElements { get; set; } 
@@ -45,9 +47,9 @@ namespace GeoBoardWebAPI.DAL
                 .HasOne(se => se.Snapshot)
                 .WithMany(s => s.Elements);
 
-            builder.Entity<User>()
-                .HasOne(u => u.Person)
-                .WithOne();
+            //builder.Entity<User>()
+            //    .HasOne(u => u.Person)
+            //    .WithOne();
 
             builder.Entity<UserBoard>(ub =>
             {

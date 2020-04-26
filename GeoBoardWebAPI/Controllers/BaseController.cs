@@ -366,11 +366,11 @@ namespace GeoBoardWebAPI.Controllers
         #endregion
 
         [NonAction]
-        public string GetUserId()
+        public Guid? GetUserId()
         {
             if (null != User && null != User.Identity && User.Identity.IsAuthenticated)
             {
-                return User.FindFirstValue(ClaimTypes.NameIdentifier);
+                return new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier));
             }
 
             return null;

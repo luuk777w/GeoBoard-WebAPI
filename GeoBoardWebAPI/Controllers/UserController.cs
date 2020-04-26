@@ -38,7 +38,7 @@ namespace GeoBoardWebAPI.Controllers
 
         // GET: api/Interest/john.doe@email.com
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get([FromRoute] string id)
+        public async Task<IActionResult> Get([FromRoute] Guid id)
         {
             var dbObject = await UserRepository.GetAll().SingleOrDefaultAsync(m => m.Id == id);
 
@@ -79,7 +79,7 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromRoute] string id, [FromBody] UserMutateModel mutateModel)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UserMutateModel mutateModel)
         {
             var dbObject = await UserRepository.FindAsync(id);
             dbObject = _mapper.Map(mutateModel, dbObject);
@@ -144,7 +144,7 @@ namespace GeoBoardWebAPI.Controllers
             return Ok(viewModel);
         }
 
-        private bool ObjectExists(string id)
+        private bool ObjectExists(Guid id)
         {
             return null != UserRepository.Find(id);
         }
