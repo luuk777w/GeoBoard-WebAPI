@@ -4,14 +4,16 @@ using GeoBoardWebAPI.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace GeoBoardWebAPI.DAL.Migrations
+namespace GeoBoardWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200426224951_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,7 +68,7 @@ namespace GeoBoardWebAPI.DAL.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -186,7 +188,7 @@ namespace GeoBoardWebAPI.DAL.Migrations
                     b.Property<Guid>("SnapshotId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -196,6 +198,27 @@ namespace GeoBoardWebAPI.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("SnapshotElements");
+                });
+
+            modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.SnapshotSnapshotElement", b =>
+                {
+                    b.Property<Guid>("SnapshotId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SnapshotElementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SnapshotId", "SnapshotElementId");
+
+                    b.HasIndex("SnapshotElementId");
+
+                    b.ToTable("SnapshotSnapshotElement");
                 });
 
             modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.User", b =>
@@ -289,7 +312,6 @@ namespace GeoBoardWebAPI.DAL.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("BoardId", "UserId");
@@ -316,30 +338,6 @@ namespace GeoBoardWebAPI.DAL.Migrations
                     b.HasIndex("LanguageId");
 
                     b.ToTable("UserSettings");
-                });
-
-            modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.UserSnapshot", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("SnapshotId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SnapshotId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserSnapshots");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -473,8 +471,8 @@ namespace GeoBoardWebAPI.DAL.Migrations
 
             modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.Board", b =>
                 {
-                    b.HasOne("GeoBoardWebAPI.DAL.Entities.User", "CreatedBy")
-                        .WithMany("CreatedBoards")
+                    b.HasOne("GeoBoardWebAPI.DAL.Entities.User", "Owner")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -490,9 +488,7 @@ namespace GeoBoardWebAPI.DAL.Migrations
 
                     b.HasOne("GeoBoardWebAPI.DAL.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.Person", b =>
@@ -505,7 +501,7 @@ namespace GeoBoardWebAPI.DAL.Migrations
             modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.Snapshot", b =>
                 {
                     b.HasOne("GeoBoardWebAPI.DAL.Entities.User", "CreatedBy")
-                        .WithMany("CreatedSnapshots")
+                        .WithMany("Snapshots")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -514,15 +510,28 @@ namespace GeoBoardWebAPI.DAL.Migrations
             modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.SnapshotElement", b =>
                 {
                     b.HasOne("GeoBoardWebAPI.DAL.Entities.Snapshot", "Snapshot")
-                        .WithMany("Elements")
+                        .WithMany()
                         .HasForeignKey("SnapshotId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GeoBoardWebAPI.DAL.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.SnapshotSnapshotElement", b =>
+                {
+                    b.HasOne("GeoBoardWebAPI.DAL.Entities.SnapshotElement", "Element")
+                        .WithMany("SnapshotSnapshotElement")
+                        .HasForeignKey("SnapshotElementId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GeoBoardWebAPI.DAL.Entities.Snapshot", "Snapshot")
+                        .WithMany("Elements")
+                        .HasForeignKey("SnapshotId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -548,7 +557,7 @@ namespace GeoBoardWebAPI.DAL.Migrations
                     b.HasOne("GeoBoardWebAPI.DAL.Entities.User", "User")
                         .WithMany("Boards")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -557,21 +566,6 @@ namespace GeoBoardWebAPI.DAL.Migrations
                     b.HasOne("GeoBoardWebAPI.DAL.Entities.Country", "Language")
                         .WithMany()
                         .HasForeignKey("LanguageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("GeoBoardWebAPI.DAL.Entities.UserSnapshot", b =>
-                {
-                    b.HasOne("GeoBoardWebAPI.DAL.Entities.Snapshot", "Snapshot")
-                        .WithMany()
-                        .HasForeignKey("SnapshotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GeoBoardWebAPI.DAL.Entities.User", "User")
-                        .WithMany("Snapshots")
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

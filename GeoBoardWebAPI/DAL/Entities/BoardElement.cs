@@ -45,13 +45,12 @@ namespace GeoBoardWebAPI.DAL.Entities
         /// <summary>
         /// The user who created this element.
         /// </summary>
-        [Required]
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         /// <summary>
         /// The user who created this element.
         /// </summary>
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
         /// <summary>
         /// The date and time of when this board was created.

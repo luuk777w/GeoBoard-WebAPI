@@ -44,6 +44,6 @@ namespace GeoBoardWebAPI.DAL.Entities
         /// <summary>
         /// The collection of elements on this board.
         /// </summary>
-        public ICollection<SnapshotElement> Elements { get; set; }
+        public ICollection<SnapshotSnapshotElement> Elements { get; set; }
     }
 }

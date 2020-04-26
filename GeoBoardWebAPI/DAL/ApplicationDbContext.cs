@@ -14,9 +14,9 @@ namespace GeoBoardWebAPI.DAL
         public DbSet<Person> Persons { get; set; }
         public DbSet<Snapshot> Snapshots { get; set; }
         public DbSet<SnapshotElement> SnapshotElements { get; set; }
+        public DbSet<SnapshotSnapshotElement> SnapshotSnapshotElement { get; set; }
         public DbSet<UserBoard> UserBoards { get; set; }
         public DbSet<UserSetting> UserSettings { get; set; }
-        public DbSet<UserSnapshot> UserSnapshots { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -33,22 +33,29 @@ namespace GeoBoardWebAPI.DAL
                 ub.HasKey(ub => new { ub.BoardId, ub.UserId });
 
                 ub.HasOne(ub => ub.Board)
-                  .WithMany(b => b.Users);
+                  .WithMany(b => b.Users)
+                  .HasForeignKey(ub => ub.BoardId);
 
                 ub.HasOne(ub => ub.User)
-                    .WithMany(u => u.Boards);
+                    .WithMany(u => u.Boards)
+                    .HasForeignKey(ub => ub.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
-            builder.Entity<SnapshotSnapshotElement>(us =>
+            builder.Entity<SnapshotSnapshotElement>(sse =>
             {
                 // Define the composite primary key.
-                us.HasKey(us => new { us.SnapshotId, us.SnapshotElementId });
+                sse.HasKey(sse => new { sse.SnapshotId, sse.SnapshotElementId });
 
-                us.HasOne(us => us.Snapshot)
-                  .WithMany();
+                sse.HasOne(sse => sse.Element)
+                    .WithMany(e => e.SnapshotSnapshotElement)
+                    .HasForeignKey(sse => sse.SnapshotElementId);
 
-                us.HasOne(us => us.User)
-                  .WithMany(u => u.Snapshots);
+                sse.HasOne(sse => sse.Snapshot)
+                    .WithMany(s => s.Elements)
+                    .HasForeignKey(sse => sse.SnapshotId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                ;
             });
         }
     }

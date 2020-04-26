@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -46,8 +47,7 @@ namespace GeoBoardWebAPI.DAL.Entities
         /// <summary>
         /// The user who created this element.
         /// </summary>
-        [Required]
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         /// <summary>
         /// The user who created this element.
@@ -59,5 +59,7 @@ namespace GeoBoardWebAPI.DAL.Entities
         /// </summary>
         [Required]
         public DateTimeOffset CreatedAt { get; set; }
+
+        public ICollection<SnapshotSnapshotElement> SnapshotSnapshotElement { get; set; }
     }
 }
