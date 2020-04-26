@@ -8,23 +8,18 @@ using GeoBoardWebAPI.Models;
 namespace GeoBoardWebAPI.DAL.Entities
 {
     // Add profile data for application users by adding properties to the ApplicationUser class
-    public class User : IdentityUser, IAppEntity
+    public class User : IdentityUser
     {
         public static readonly string[] Roles = { "Administrator", "User" };
-
-        Guid IAppEntity.Id
-        {
-            get { return new Guid(Id); }
-            set { this.Id = value.ToString(); }
-        }
         
-        public virtual Person Person { get; set; }
-        public virtual UserSetting Settings { get; set; }
+        public Person Person { get; set; }
+        public UserSetting Settings { get; set; }
 
         /// <summary>
-        /// Notitie: Calculated property van maken a.d.v. de LockoutEnd? Scheelt weer een kolom ;-)
+        /// Whether or not this account is (temporarily) locked.
+        /// This value becomes true when the <see cref="LockoutEnd"/> is filled.
         /// </summary>
-        public bool IsLocked { get; set; }
+        public bool IsLocked => this.LockoutEnd != null;
 
         public DateTimeOffset CreatedAt { get; set; }
 
