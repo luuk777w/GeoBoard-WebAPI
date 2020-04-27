@@ -74,8 +74,10 @@ namespace GeoBoardWebAPI.Controllers
             if (user == null)
                 return BadRequest(_localizer["This account is unknown"]);
 
+            // Check email confirmation
             if (user != null && await _appUserManager.IsEmailConfirmedAsync(user))
             {
+                // Try to log the user in.
                 var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, true);
                 if (result.Succeeded)
                 {
@@ -90,10 +92,13 @@ namespace GeoBoardWebAPI.Controllers
                         expires: model.RememberMe ? DateTime.Now.AddDays(14) : DateTime.Now.AddHours(10),
                         signingCredentials: creds);
 
-                    _logger.LogInformation($"{user.Email} has logged in.");
+                    _logger.LogInformation($"User '{user.Email}' ({user.Email}) has logged in.");
 
-                    return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+                    // Return the JWT token
+                    return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
                 }
+
+                // Determine the error message based on what went wrong
                 if (result.IsLockedOut)
                 {
                     return BadRequest(_localizer["Your account has been locked"]);
@@ -108,6 +113,7 @@ namespace GeoBoardWebAPI.Controllers
                 }
             }
 
+            // Account not yet activated.
             return BadRequest(_localizer["Your account has not yet been activated"]);
         }
 
