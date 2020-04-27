@@ -532,7 +532,7 @@ namespace GeoBoardWebAPI
                     var result = await userManager.CreateAsync(userToInsert, "Wachtwoord12");
 
                     //Add roles
-                    await userManager.AddToRoleAsync(await userManager.FindByNameAsync("luuk"), "User");
+                    await userManager.AddToRoleAsync(await userManager.FindByNameAsync("matthijs"), "User");
                 }
 
                 await dbContext.SaveChangesAsync();
