@@ -50,7 +50,7 @@ namespace GeoBoardWebAPI
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<User, IdentityRole<Guid>>()
+            services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -152,7 +152,7 @@ namespace GeoBoardWebAPI
                 endpoints.MapHub<HomeHub>("/homehub");
             });
 
-            //SeedDatabase(services).GetAwaiter().GetResult();
+            SeedDatabase(services).GetAwaiter().GetResult();
         }
 
         public async Task SeedDatabase(IServiceProvider services)
@@ -418,9 +418,9 @@ namespace GeoBoardWebAPI
                 }
                 #endregion
                 string[] userRoles = User.Roles;
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
 
-                Func<IdentityRole, IEnumerable<Claim>, Task> addIdentityRoleClaims = async (IdentityRole identityRole, IEnumerable<Claim> claims) => {
+                Func<Role, IEnumerable<Claim>, Task> addIdentityRoleClaims = async (Role identityRole, IEnumerable<Claim> claims) => {
                     var identityRoleClaims = await roleManager.GetClaimsAsync(identityRole);
 
                     foreach (var claim in claims)
@@ -437,7 +437,7 @@ namespace GeoBoardWebAPI
 
                 foreach (var role in userRoles)
                 {
-                    var identityRole = new IdentityRole(role);
+                    var identityRole = new Role(role);
                     if (!await roleManager.RoleExistsAsync(role))
                     {
                         await roleManager.CreateAsync(identityRole);
@@ -504,7 +504,35 @@ namespace GeoBoardWebAPI
                     var result = await userManager.CreateAsync(userToInsert, "Wachtwoord12");
 
                     //Add roles
-                    await userManager.AddToRoleAsync(await userManager.FindByNameAsync("luuk.wuijster@hotmail.com"), "User");
+                    await userManager.AddToRoleAsync(await userManager.FindByNameAsync("luuk"), "User");
+                }
+
+                var user2 = await userManager.FindByNameAsync("matthijs");
+                if (user2 == null)
+                {
+                    var email = "m.sixma@outlook.com";
+                    var userToInsert = new User
+                    {
+                        Email = email,
+                        UserName = "matthijs",
+                        EmailConfirmed = true,
+                        Person = new Person
+                        {
+                            Id = new Guid("BCFF11D5-BAB4-4D2E-9C16-08218BD8D201"),
+                            LastName = "Matthijs",
+                            FirstName = "Sixma",
+                            Country = await dbContext.Countries.FirstAsync(x => x.LanguageCode == "nl-NL"),
+                        },
+                        Settings = new UserSetting
+                        {
+                            Language = dbContext.Countries.FirstOrDefault(x => x.LongCode.Equals("NLD")),
+                        },
+                        Id = new Guid("ABCF11D5-BAB4-4D2E-9C16-08218BD8D102")
+                    };
+                    var result = await userManager.CreateAsync(userToInsert, "Wachtwoord12");
+
+                    //Add roles
+                    await userManager.AddToRoleAsync(await userManager.FindByNameAsync("luuk"), "User");
                 }
 
                 await dbContext.SaveChangesAsync();

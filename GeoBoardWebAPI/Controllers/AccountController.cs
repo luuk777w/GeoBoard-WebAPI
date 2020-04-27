@@ -27,7 +27,7 @@ namespace GeoBoardWebAPI.Controllers
     public class AccountController : BaseController
     {
         private readonly AppUserManager _appUserManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<Role> _roleManager;
         private readonly IEmailService _emailService;
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger _logger;
@@ -36,7 +36,7 @@ namespace GeoBoardWebAPI.Controllers
 
         public AccountController(
             AppUserManager appUserManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<Role> roleManager,
             SignInManager<User> signInManager,
             IEmailService emailService,
             ILogger<AccountController> logger,
@@ -58,16 +58,21 @@ namespace GeoBoardWebAPI.Controllers
         [HttpPost("authorize")]
         public async Task<IActionResult> Authorize([FromBody] LoginViewModel model)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            // Validate request
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
+            // Search the user by username
             var user = await _appUserManager.FindByEmailAsync(model.Username);
-
             if (user == null)
             {
+                // If the user was not found by email, search by name
                 user = await _appUserManager.FindByNameAsync(model.Username);
             }
 
-            if (user == null) return BadRequest(_localizer["This account is unknown"]);
+            // No user found.
+            if (user == null)
+                return BadRequest(_localizer["This account is unknown"]);
 
             if (user != null && await _appUserManager.IsEmailConfirmedAsync(user))
             {

@@ -6,7 +6,7 @@ using System;
 
 namespace GeoBoardWebAPI.DAL
 {
-    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
+    public class ApplicationDbContext : IdentityDbContext<User, Role, Guid>
     {
         public DbSet<Board> Boards { get; set; }
         public DbSet<BoardElement> BoardElements { get; set; } 
