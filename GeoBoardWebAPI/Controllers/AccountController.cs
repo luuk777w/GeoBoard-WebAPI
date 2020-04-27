@@ -121,11 +121,15 @@ namespace GeoBoardWebAPI.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
-            if (!ModelState.IsValid) return BadRequest(model);
+            // Validate request
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
+            // Check if the user is unique
             if (await _appUserManager.FindByEmailAsync(model.Email) != null) return BadRequest("Email already in use");
             if (await _appUserManager.FindByNameAsync(model.Username) != null) return BadRequest("Username already in use");
 
+            // Create a new user.
             var user = new User
             {
                 Email = model.Email,
