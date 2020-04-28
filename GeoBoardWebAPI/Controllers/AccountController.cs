@@ -20,6 +20,7 @@ using GeoBoardWebAPI.Extensions.Authorization;
 using Microsoft.EntityFrameworkCore;
 using GeoBoardWebAPI.Extensions.Authorization.Claims;
 using System.Web;
+using GeoBoardWebAPI.Responses;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -60,7 +61,7 @@ namespace GeoBoardWebAPI.Controllers
         {
             // Validate request
             if (!ModelState.IsValid) 
-                return BadRequest(ModelState);
+                return BadRequest(new ApiBadRequestResponse(ModelState));
 
             // Search the user by username
             var user = await _appUserManager.FindByEmailAsync(model.Username);
@@ -72,7 +73,7 @@ namespace GeoBoardWebAPI.Controllers
 
             // No user found.
             if (user == null)
-                return BadRequest(_localizer["This account is unknown"]);
+                return BadRequest(new ApiBadRequestResponse(_localizer["This account is unknown"]));
 
             // Check email confirmation
             if (user != null && await _appUserManager.IsEmailConfirmedAsync(user))
@@ -101,15 +102,15 @@ namespace GeoBoardWebAPI.Controllers
                 // Determine the error message based on what went wrong
                 if (result.IsLockedOut)
                 {
-                    return BadRequest(_localizer["Your account has been locked"]);
+                    return BadRequest(new ApiBadRequestResponse(_localizer["Your account has been locked"]));
                 }
                 if (result.IsNotAllowed)
                 {
-                    return BadRequest(_localizer["Your account has been blocked"]);
+                    return BadRequest(new ApiBadRequestResponse(_localizer["Your account has been blocked"]));
                 }
                 else
                 {
-                    return BadRequest(_localizer["The email and/or password are incorrect"]);
+                    return BadRequest(new ApiBadRequestResponse(_localizer["The email and/or password are incorrect"]));
                 }
             }
 
@@ -122,12 +123,23 @@ namespace GeoBoardWebAPI.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             // Validate request
-            if (!ModelState.IsValid) 
-                return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new ApiBadRequestResponse(ModelState));
 
             // Check if the user is unique
-            if (await _appUserManager.FindByEmailAsync(model.Email) != null) return BadRequest("Email already in use");
-            if (await _appUserManager.FindByNameAsync(model.Username) != null) return BadRequest("Username already in use");
+            if (await _appUserManager.FindByEmailAsync(model.Email) != null)
+            {
+                ModelState.AddModelError(nameof(model.Email), "Email already in use.");
+
+                return BadRequest(new ApiBadRequestResponse(ModelState));
+            }
+
+            if (await _appUserManager.FindByNameAsync(model.Username) != null)
+            {
+                ModelState.AddModelError(nameof(model.Username), "Username already in use");
+
+                return BadRequest(new ApiBadRequestResponse(ModelState));
+            }
 
             // Create a new user.
             var user = new User
@@ -139,7 +151,8 @@ namespace GeoBoardWebAPI.Controllers
             };
 
             var result = await _appUserManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded) return BadRequest(result.Errors);
+            if (!result.Succeeded) 
+                return BadRequest(result.Errors);
 
             _logger.LogInformation($"{user.Email} has created an account.");
 

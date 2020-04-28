@@ -6,7 +6,7 @@ namespace GeoBoardWebAPI.Models.Account
     public class RegisterViewModel
     {
         [AppRequired]
-        [DataType(DataType.EmailAddress)]
+        [EmailAddress]
         public string Email { get; set; }
 
         [AppRequired]

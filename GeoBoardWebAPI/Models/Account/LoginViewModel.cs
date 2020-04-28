@@ -12,8 +12,6 @@ namespace GeoBoardWebAPI.Models.Account
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        public int OTP { get; set; }
-
         [Display(Name = "Remember me?")]
         [AppRequired]
         public bool RememberMe { get; set; }
