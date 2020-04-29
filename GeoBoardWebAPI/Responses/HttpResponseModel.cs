@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 namespace GeoBoardWebAPI.Responses
 {
     // Source: https://www.devtrends.co.uk/blog/handling-errors-in-asp.net-core-web-api
-    public class ApiResponse
+    public class HttpResponseModel
     {
         /// <summary>
         /// The HTTP Status Code
         /// </summary>
         public int StatusCode { get; }
 
-        /// <summary>
+        /// <summary>s
         /// An optional status message.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -25,7 +25,7 @@ namespace GeoBoardWebAPI.Responses
         /// </summary>
         /// <param name="statusCode">The status code to return.</param>
         /// <param name="message">An optional message to return.</param>
-        public ApiResponse(int statusCode, string message = null)
+        public HttpResponseModel(int statusCode, string message = null)
         {
             StatusCode = statusCode;
             Message = message ?? GetDefaultMessageForStatusCode(statusCode);
@@ -37,15 +37,12 @@ namespace GeoBoardWebAPI.Responses
         /// <param name="statusCode">The status code to return a message for.</param>
         private static string GetDefaultMessageForStatusCode(int statusCode)
         {
-            switch (statusCode)
+            return statusCode switch
             {
-                case 404:
-                    return "Resource not found";
-                case 500:
-                    return "An unhandled error occurred";
-                default:
-                    return null;
-            }
+                404 => "Resource not found",
+                500 => "An unhandled error occurred",
+                _ => null,
+            };
         }
     }
 }

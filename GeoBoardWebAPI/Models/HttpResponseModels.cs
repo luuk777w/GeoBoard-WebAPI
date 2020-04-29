@@ -18,16 +18,16 @@ namespace GeoBoardWebAPI.Models
         public IEnumerable<T> Items { get; set; }
     }
 
-    public class BadRequestHttpResponseModel
+    public class BadRequestHttpResponseModelx
     {
         public IEnumerable<string> Errors { get; set; }
 
-        public BadRequestHttpResponseModel()
+        public BadRequestHttpResponseModelx()
         {
             Errors = new List<string>();
         }
 
-        public BadRequestHttpResponseModel(string error)
+        public BadRequestHttpResponseModelx(string error)
         {
             Errors = new List<string>()
             {
@@ -35,12 +35,12 @@ namespace GeoBoardWebAPI.Models
             };
         }
 
-        public BadRequestHttpResponseModel(IEnumerable<string> errors)
+        public BadRequestHttpResponseModelx(IEnumerable<string> errors)
         {
             Errors = errors;
         }
 
-        public BadRequestHttpResponseModel(LocalizedString error)
+        public BadRequestHttpResponseModelx(LocalizedString error)
         {
             Errors = new List<string>()
             {
@@ -48,7 +48,7 @@ namespace GeoBoardWebAPI.Models
             };
         }
 
-        public BadRequestHttpResponseModel(IEnumerable<LocalizedString> errors)
+        public BadRequestHttpResponseModelx(IEnumerable<LocalizedString> errors)
         {
             var errorList = new List<string>();
 

@@ -61,7 +61,7 @@ namespace GeoBoardWebAPI.Controllers
         {
             // Validate request
             if (!ModelState.IsValid) 
-                return BadRequest(new ApiBadRequestResponse(ModelState));
+                return BadRequest(ModelState);
 
             // Search the user by username
             var user = await _appUserManager.FindByEmailAsync(model.Username);
@@ -73,7 +73,7 @@ namespace GeoBoardWebAPI.Controllers
 
             // No user found.
             if (user == null)
-                return BadRequest(new ApiBadRequestResponse(_localizer["This account is unknown"]));
+                return BadRequest(_localizer["This account is unknown"]);
 
             // Check email confirmation
             if (user != null && await _appUserManager.IsEmailConfirmedAsync(user))
@@ -102,15 +102,15 @@ namespace GeoBoardWebAPI.Controllers
                 // Determine the error message based on what went wrong
                 if (result.IsLockedOut)
                 {
-                    return BadRequest(new ApiBadRequestResponse(_localizer["Your account has been locked"]));
+                    return BadRequest(_localizer["Your account has been locked"]);
                 }
                 if (result.IsNotAllowed)
                 {
-                    return BadRequest(new ApiBadRequestResponse(_localizer["Your account has been blocked"]));
+                    return BadRequest(_localizer["Your account has been blocked"]);
                 }
                 else
                 {
-                    return BadRequest(new ApiBadRequestResponse(_localizer["The email and/or password are incorrect"]));
+                    return BadRequest(_localizer["The email and/or password are incorrect"]);
                 }
             }
 
@@ -124,21 +124,21 @@ namespace GeoBoardWebAPI.Controllers
         {
             // Validate request
             if (!ModelState.IsValid)
-                return BadRequest(new ApiBadRequestResponse(ModelState));
+                return BadRequest(ModelState);
 
             // Check if the user is unique
             if (await _appUserManager.FindByEmailAsync(model.Email) != null)
             {
                 ModelState.AddModelError(nameof(model.Email), "Email already in use.");
 
-                return BadRequest(new ApiBadRequestResponse(ModelState));
+                return BadRequest(ModelState);
             }
 
             if (await _appUserManager.FindByNameAsync(model.Username) != null)
             {
                 ModelState.AddModelError(nameof(model.Username), "Username already in use");
 
-                return BadRequest(new ApiBadRequestResponse(ModelState));
+                return BadRequest(ModelState);
             }
 
             // Create a new user.

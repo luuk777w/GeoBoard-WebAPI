@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace GeoBoardWebAPI.Responses
 {
     // Source: https://www.devtrends.co.uk/blog/handling-errors-in-asp.net-core-web-api
-    public class ApiBadRequestResponse : ApiResponse
+    public class BadRequestHttpResponseModel : HttpResponseModel
     {
         /// <summary>
         /// A collecton of errors to return.
@@ -15,10 +15,17 @@ namespace GeoBoardWebAPI.Responses
         public Dictionary<string, string[]> Errors { get; }
 
         /// <summary>
+        /// Return an empty Bad Request response.
+        /// </summary>
+        public BadRequestHttpResponseModel() : base(400)
+        {
+        }
+
+        /// <summary>
         /// Construct a Bad Request response with a message.
         /// </summary>
         /// <param name="message">The message to return.</param>
-        public ApiBadRequestResponse(string message) : base(400, message)
+        public BadRequestHttpResponseModel(string message) : base(400, message)
         {
         }
 
@@ -26,7 +33,7 @@ namespace GeoBoardWebAPI.Responses
         /// Construct an Api Bad Request response using a ModelState.
         /// </summary>
         /// <param name="modelState"></param>
-        public ApiBadRequestResponse(ModelStateDictionary modelState) : base (400)
+        public BadRequestHttpResponseModel(ModelStateDictionary modelState) : base (400)
         {
             // Only invalid modelstates can be handled by this response.
             if (modelState.IsValid)

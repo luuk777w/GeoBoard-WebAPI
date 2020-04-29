@@ -23,6 +23,7 @@ using GeoBoardWebAPI.DAL.Entities;
 using GeoBoardWebAPI.DAL.Repositories;
 using GeoBoardWebAPI.Extensions.Authorization;
 using GeoBoardWebAPI.Models;
+using GeoBoardWebAPI.Responses;
 using GeoBoardWebAPI.Extensions;
 
 namespace GeoBoardWebAPI.Controllers
@@ -163,190 +164,21 @@ namespace GeoBoardWebAPI.Controllers
             return Ok(responseModel);
         }
 
-
         [NonAction]
-        protected async virtual Task<OkObjectResult> SingularOk<TViewModel>(
-            IQueryable<TViewModel> queryable,
-            params (Expression<Func<TViewModel, object>> orderByKey, System.ComponentModel.ListSortDirection sortDirection)[] defaultOrderBy)
-            where TViewModel : class
+        protected new BadRequestObjectResult BadRequest()
         {
-            var viewModelType = typeof(TViewModel);
-            var request = HttpContext.Request;
+            var response = new BadRequestHttpResponseModel();
 
-            var maxItemsPerPage = 1000;
-
-            var defaultItemsPerPage = 20;
-
-            var qPage = request.Query["page"];
-            var qItemsPerPage = request.Query["itemsPerPage"];
-            string qOrderBy = request.Query["orderBy"];
-            string qSearch = request.Query["search"];
-            string qFilter = request.Query["filter"]; //json object maken
-
-            if (!int.TryParse(qPage.FirstOrDefault(), out int page) || page < 1)
-            {
-                page = 1;
-            }
-
-            if (!int.TryParse(qItemsPerPage.FirstOrDefault(), out int itemsPerPage) || itemsPerPage > maxItemsPerPage)
-            {
-                itemsPerPage = defaultItemsPerPage;
-            }
-
-            queryable = Search(queryable, viewModelType, qSearch);
-
-            var filterResult = new List<FilterHttpRequestModel>();
-
-            queryable = Filter(queryable, viewModelType, qFilter, filterResult);
-
-            var orderByResult = new List<OrderByHttpRequestModel>();
-
-            queryable = OrderBy(queryable, viewModelType, qOrderBy, orderByResult);
-
-            //Confirm order is present. We need a order by for Skip and Take results.
-            if (!orderByResult.Any())
-            {
-                var defaultOrderByList = new List<string>();
-
-                foreach (var orderByItem in defaultOrderBy)
-                {
-                    var expressionBody = orderByItem.orderByKey.Body;
-                    var memberExpr = expressionBody as MemberExpression;
-                    var unaryExpr = expressionBody as UnaryExpression;
-                    var memberName = (memberExpr ?? (unaryExpr != null ? unaryExpr.Operand as MemberExpression : null)).Member.Name;
-
-                    var sortOrderString = (orderByItem.sortDirection == System.ComponentModel.ListSortDirection.Descending)
-                         ? "DESC"
-                         : "ASC";
-
-                    orderByResult.Add(new OrderByHttpRequestModel()
-                    {
-                        Key = memberName,
-                        Direction = sortOrderString
-                    });
-
-                    defaultOrderByList.Add($"{memberName} {sortOrderString}");
-                }
-
-                qOrderBy = string.Join(", ", defaultOrderByList);
-                queryable = queryable.OrderBy(qOrderBy);
-            }
-
-            var totalCount = queryable.Count();
-
-            queryable = queryable
-                .Skip((page - 1) * itemsPerPage)
-                .Take(itemsPerPage)
-            ;
-
-            var items = queryable.ToList();
-
-            var responseModel = new CollectionHttpResponseModel<TViewModel>()
-            {
-                Page = page,
-                ItemsPerPage = itemsPerPage,
-                OrderBy = orderByResult,
-                Filter = filterResult,
-                TotalCount = totalCount,
-                ResultCount = items.Count,
-                Search = qSearch,
-                Items = items
-            };
-
-            return Ok(responseModel);
+            return BadRequest(response);
         }
 
         [NonAction]
-        protected async virtual Task<OkObjectResult> SingularOk<TViewModel>(
-            IQueryable<TViewModel> queryable, int totalRows = 0,
-            params (Expression<Func<TViewModel, object>> orderByKey, System.ComponentModel.ListSortDirection sortDirection)[] defaultOrderBy)
-    where TViewModel : class
+        protected BadRequestObjectResult BadRequest(string error)
         {
-            var viewModelType = typeof(TViewModel);
-            var request = HttpContext.Request;
+            var response = new BadRequestHttpResponseModel(error);
 
-            var maxItemsPerPage = 1000;
-
-            var defaultItemsPerPage = 20;
-
-            var qPage = request.Query["page"];
-            var qItemsPerPage = request.Query["itemsPerPage"];
-            string qOrderBy = request.Query["orderBy"];
-            string qSearch = request.Query["search"];
-            string qFilter = request.Query["filter"]; //json object maken
-
-            if (!int.TryParse(qPage.FirstOrDefault(), out int page) || page < 1)
-            {
-                page = 1;
-            }
-
-            if (!int.TryParse(qItemsPerPage.FirstOrDefault(), out int itemsPerPage) || itemsPerPage > maxItemsPerPage)
-            {
-                itemsPerPage = defaultItemsPerPage;
-            }
-
-            queryable = Search(queryable, viewModelType, qSearch);
-
-            var filterResult = new List<FilterHttpRequestModel>();
-            queryable = Filter(queryable, viewModelType, qFilter, filterResult);
-
-            var orderByResult = new List<OrderByHttpRequestModel>();
-
-            queryable = OrderBy(queryable, viewModelType, qOrderBy, orderByResult);
-
-            //Confirm order is present. We need a order by for Skip and Take results.
-            if (!orderByResult.Any())
-            {
-                var defaultOrderByList = new List<string>();
-
-                foreach (var orderByItem in defaultOrderBy)
-                {
-                    var expressionBody = orderByItem.orderByKey.Body;
-                    var memberExpr = expressionBody as MemberExpression;
-                    var unaryExpr = expressionBody as UnaryExpression;
-                    var memberName = (memberExpr ?? (unaryExpr != null ? unaryExpr.Operand as MemberExpression : null)).Member.Name;
-
-                    var sortOrderString = (orderByItem.sortDirection == System.ComponentModel.ListSortDirection.Descending)
-                         ? "DESC"
-                         : "ASC";
-
-                    orderByResult.Add(new OrderByHttpRequestModel()
-                    {
-                        Key = memberName,
-                        Direction = sortOrderString
-                    });
-
-                    defaultOrderByList.Add($"{memberName} {sortOrderString}");
-                }
-
-                qOrderBy = string.Join(", ", defaultOrderByList);
-                queryable = queryable.OrderBy(qOrderBy);
-            }
-
-            var totalCount = totalRows > 0 ? totalRows : queryable.Count();
-
-            //queryable = queryable
-            //    .Skip((page - 1) * itemsPerPage)
-            //    .Take(itemsPerPage)
-            //;
-
-            var items = queryable.ToList();
-
-            var responseModel = new CollectionHttpResponseModel<TViewModel>()
-            {
-                Page = page,
-                ItemsPerPage = itemsPerPage,
-                OrderBy = orderByResult,
-                Filter = filterResult,
-                TotalCount = totalCount,
-                ResultCount = items.Count,
-                Search = qSearch,
-                Items = items
-            };
-
-            return Ok(responseModel);
+            return BadRequest(response);
         }
-
 
         [NonAction]
         protected BadRequestObjectResult BadRequest(LocalizedString error)
@@ -356,13 +188,6 @@ namespace GeoBoardWebAPI.Controllers
             return BadRequest(response);
         }
 
-        [NonAction]
-        protected BadRequestObjectResult BadRequest(IEnumerable<LocalizedString> errors)
-        {
-            var response = new BadRequestHttpResponseModel(errors);
-
-            return BadRequest(response);
-        }
         #endregion
 
         [NonAction]
