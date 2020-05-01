@@ -25,6 +25,7 @@ using GeoBoardWebAPI.Extensions.Authorization;
 using GeoBoardWebAPI.Models;
 using GeoBoardWebAPI.Responses;
 using GeoBoardWebAPI.Extensions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -184,6 +185,14 @@ namespace GeoBoardWebAPI.Controllers
         protected BadRequestObjectResult BadRequest(LocalizedString error)
         {
             var response = new BadRequestHttpResponseModel(error);
+
+            return BadRequest(response);
+        }
+
+        [NonAction]
+        public override BadRequestObjectResult BadRequest(ModelStateDictionary modelState)
+        {
+            var response = new BadRequestHttpResponseModel(modelState);
 
             return BadRequest(response);
         }
