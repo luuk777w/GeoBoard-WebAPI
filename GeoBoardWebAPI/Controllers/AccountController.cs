@@ -156,6 +156,8 @@ namespace GeoBoardWebAPI.Controllers
 
             _logger.LogInformation($"{user.Email} has created an account.");
 
+
+            //sendEmail
             var emailModel = new ActivateAccountEmailViewModel
             {
                 Email = user.Email,
