@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +17,7 @@ namespace GeoBoardWebAPI
         {
             Configuration = configuration;
         }
-        public IConfiguration Configuration { get; }
+        public static IConfiguration Configuration { get; set; }
 
         public static void Main(string[] args)
         {

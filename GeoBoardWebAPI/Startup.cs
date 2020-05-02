@@ -22,6 +22,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using GeoBoardWebAPI.Services;
+using Hangfire;
+using Hangfire.SqlServer;
 
 namespace GeoBoardWebAPI
 {
@@ -103,6 +105,24 @@ namespace GeoBoardWebAPI
             services.AddAutoMapper(typeof(Startup));
             services.AddSignalR();
 
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.Zero,
+                    UseRecommendedIsolationLevel = true,
+                    UsePageLocksOnDequeue = true,
+                    DisableGlobalLocks = true
+                }));
+
+            // Add the processing server as IHostedService
+            services.AddHangfireServer();
+
+
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddAuthorization(options =>
@@ -122,7 +142,7 @@ namespace GeoBoardWebAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services, IBackgroundJobClient backgroundJobs)
         {
             if (env.IsDevelopment())
             {
@@ -135,6 +155,9 @@ namespace GeoBoardWebAPI
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseHangfireDashboard();
+            backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
 
             app.UseCors("CorsPolicy");
 
