@@ -60,6 +60,7 @@ namespace GeoBoardWebAPI
                 options.Password.RequireLowercase = true;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = true;
+                options.Password.RequireDigit = true;
                 options.User.RequireUniqueEmail = true;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromHours(1);
                 options.Lockout.MaxFailedAccessAttempts = 7;
