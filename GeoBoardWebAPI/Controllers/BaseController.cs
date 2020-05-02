@@ -26,6 +26,7 @@ using GeoBoardWebAPI.Models;
 using GeoBoardWebAPI.Responses;
 using GeoBoardWebAPI.Extensions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Identity;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -193,6 +194,14 @@ namespace GeoBoardWebAPI.Controllers
         public override BadRequestObjectResult BadRequest(ModelStateDictionary modelState)
         {
             var response = new BadRequestHttpResponseModel(modelState);
+
+            return BadRequest(response);
+        }
+
+        [NonAction]
+        protected BadRequestObjectResult BadRequest(IEnumerable<IdentityError> identityErrors, ModelStateDictionary modelState)
+        {
+            var response = new BadRequestHttpResponseModel(identityErrors, ref modelState);
 
             return BadRequest(response);
         }

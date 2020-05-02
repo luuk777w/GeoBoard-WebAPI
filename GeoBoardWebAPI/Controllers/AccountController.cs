@@ -152,7 +152,7 @@ namespace GeoBoardWebAPI.Controllers
 
             var result = await _appUserManager.CreateAsync(user, model.Password);
             if (!result.Succeeded) 
-                return BadRequest(result.Errors);
+                return BadRequest(result.Errors, ModelState);
 
             _logger.LogInformation($"{user.Email} has created an account.");
 

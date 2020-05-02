@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,44 @@ namespace GeoBoardWebAPI.Responses
 
             // Fill the errors collection.
             // Source: https://stackoverflow.com/a/2845864/3625118
-            Errors = modelState.ToDictionary(
+            Errors = GenerateErrorList(modelState);
+        }
+
+        /// <summary>
+        /// Construct an API Bad Request response using a collection of <see cref="IdentityError"/>.
+        /// </summary>
+        /// <param name="identityErrors"></param>
+        public BadRequestHttpResponseModel(IEnumerable<IdentityError> identityErrors, ref ModelStateDictionary modelState) : base(400)
+        {
+            // Loop through each identity error
+            foreach (IdentityError error in identityErrors)
+            {
+                // Append the errors to the ModelState field, depending on the error code.
+                switch (error.Code)
+                {
+                    case "PasswordMismatch":
+                    case "PasswordRequiresDigit":
+                    case "PasswordRequiresLower":
+                    case "PasswordRequiresNonLetterOrDigit":
+                    case "PasswordRequiresUpper":
+                    case "PasswordTooShort":
+                        modelState.AddModelError("Password", error.Description);
+                        break;
+                }
+            }
+
+            // Fill the errors collection.
+            Errors = GenerateErrorList(modelState);
+        }
+
+        /// <summary>
+        /// Generate an error array for each field in the <see cref="ModelStateDictionary"/>.
+        /// </summary>
+        /// <param name="modelState"></param>
+        private Dictionary<string, string[]> GenerateErrorList(ModelStateDictionary modelState)
+        {
+            // Source: https://stackoverflow.com/a/2845864/3625118
+            return modelState.ToDictionary(
                kvp => kvp.Key,
                kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
             );
