@@ -160,6 +160,7 @@ namespace GeoBoardWebAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)
         {
+            // Configure error handling depending on environment.
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -172,20 +173,26 @@ namespace GeoBoardWebAPI
                 app.UseHsts();
             }
 
+            // Configure the Hangfire dashboard.
             app.UseHangfireDashboard("/hangfire", new DashboardOptions()
             {
                 AppPath = env.IsDevelopment() ? "https://localhost:5001" : "https://geoboard.app" 
             });
 
+            // Activate the CorsPolicy
             app.UseCors("CorsPolicy");
 
+            // Enable static files.
             app.UseStaticFiles();
 
+            // Enable routing.
             app.UseRouting();
 
+            // Enable authentication and authorization.
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Setup the endpoints.
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
