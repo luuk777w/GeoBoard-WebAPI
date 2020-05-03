@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using GeoBoardWebAPI.Extensions.Authorization.Claims;
 using System.Web;
 using GeoBoardWebAPI.Responses;
+using Hangfire;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -33,6 +34,7 @@ namespace GeoBoardWebAPI.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
+        private readonly IBackgroundJobClient _backgroundJobs;
         private readonly UserRepository _userRepository;
 
         public AccountController(
@@ -43,7 +45,8 @@ namespace GeoBoardWebAPI.Controllers
             ILogger<AccountController> logger,
             UserRepository userRepository,
             IConfiguration config,
-            IServiceProvider services)
+            IServiceProvider services,
+            IBackgroundJobClient backgroundJobs)
             : base(services)
         {
             _appUserManager = appUserManager;
@@ -53,6 +56,7 @@ namespace GeoBoardWebAPI.Controllers
             _configuration = config;
             _emailService = emailService;
             _userRepository = userRepository;
+            _backgroundJobs = backgroundJobs;
         }
 
         [AllowAnonymous]
@@ -167,9 +171,15 @@ namespace GeoBoardWebAPI.Controllers
 
             await _appUserManager.AddToRoleAsync(await _appUserManager.FindByNameAsync(model.Username), "User");
 
-            await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Confirm your account"], emailModel, "Email/ConfirmUserAccount");
+            _backgroundJobs.Enqueue(() => sendEmail(emailModel));
 
             return Ok();
+        }
+
+        [NonAction]
+        public async Task sendEmail(ActivateAccountEmailViewModel emailModel)
+        {
+            await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Confirm your account"], emailModel, "Email/ConfirmUserAccount");
         }
 
         [HttpPost("ResendActivationEmail")]

@@ -122,7 +122,6 @@ namespace GeoBoardWebAPI
             // Add the processing server as IHostedService
             services.AddHangfireServer();
 
-
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddAuthorization(options =>
@@ -157,7 +156,6 @@ namespace GeoBoardWebAPI
             }
 
             app.UseHangfireDashboard();
-            backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
 
             app.UseCors("CorsPolicy");
 
