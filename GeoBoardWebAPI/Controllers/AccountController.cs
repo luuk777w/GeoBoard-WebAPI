@@ -171,13 +171,13 @@ namespace GeoBoardWebAPI.Controllers
 
             await _appUserManager.AddToRoleAsync(await _appUserManager.FindByNameAsync(model.Username), "User");
 
-            _backgroundJobs.Enqueue(() => sendEmail(emailModel));
+            _backgroundJobs.Enqueue(() => SendActivateAccountEmail(emailModel));
 
             return Ok();
         }
 
         [NonAction]
-        public async Task sendEmail(ActivateAccountEmailViewModel emailModel)
+        public async Task SendActivateAccountEmail(ActivateAccountEmailViewModel emailModel)
         {
             await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Confirm your account"], emailModel, "Email/ConfirmUserAccount");
         }
