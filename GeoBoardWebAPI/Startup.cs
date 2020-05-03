@@ -172,7 +172,10 @@ namespace GeoBoardWebAPI
                 app.UseHsts();
             }
 
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions()
+            {
+                AppPath = env.IsDevelopment() ? "https://localhost:5001" : "https://geoboard.app" 
+            });
 
             app.UseCors("CorsPolicy");
 
