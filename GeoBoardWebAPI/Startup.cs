@@ -39,23 +39,31 @@ namespace GeoBoardWebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Configure the settings
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
+            // Register the repository services.
             services.AddScoped(typeof(CountryRepository), typeof(CountryRepository));
             services.AddScoped(typeof(UserRepository), typeof(UserRepository));
             services.AddScoped(typeof(Repository<User>), typeof(UserRepository));
 
+            // Register tge services.
             services.AddScoped(typeof(ITemplateService), typeof(TemplateService));
             services.AddScoped(typeof(IEmailService), typeof(EmailService));
+
+            // Register the managers.
             services.AddScoped(typeof(AppUserManager), typeof(AppUserManager));
 
+            // Configure the database context.
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            // Add the identity service.
             services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            // Configure the identity service.
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequiredLength = 6;
@@ -70,6 +78,7 @@ namespace GeoBoardWebAPI
                 options.SignIn.RequireConfirmedEmail = false;
             });
 
+            // Configure JWT authentication.
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services.AddAuthentication(options =>
             {
@@ -93,6 +102,7 @@ namespace GeoBoardWebAPI
 
             });
 
+            // Setup CORS.
             services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
             {
                 builder
@@ -102,9 +112,13 @@ namespace GeoBoardWebAPI
                     .AllowCredentials();
             }));
 
+            // Setup AutoMapper
             services.AddAutoMapper(typeof(Startup));
+
+            // Add SignalR.
             services.AddSignalR();
 
+            // Add and configure Hangfire.
             services.AddHangfire(configuration => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
@@ -122,8 +136,10 @@ namespace GeoBoardWebAPI
             // Add the processing server as IHostedService
             services.AddHangfireServer();
 
+            // Add the localisation service.
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
+            // Add and configure authorization.
             services.AddAuthorization(options =>
             {
 
@@ -137,11 +153,12 @@ namespace GeoBoardWebAPI
 
             });
 
+            // Enable controllers and views.
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services, IBackgroundJobClient backgroundJobs)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)
         {
             if (env.IsDevelopment())
             {
