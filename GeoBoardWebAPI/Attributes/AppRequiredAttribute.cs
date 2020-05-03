@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Localization;
+﻿
+using Microsoft.Extensions.Localization;
 using GeoBoardWebAPI.Resources;
 using System;
 using System.Collections.Generic;
@@ -19,3 +20,4 @@ namespace GeoBoardWebAPI.Attributes
         }
     }
 }
+

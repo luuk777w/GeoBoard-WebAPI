@@ -46,7 +46,7 @@ namespace GeoBoardWebAPI.Controllers
             UserRepository userRepository,
             IConfiguration config,
             IServiceProvider services,
-            IBackgroundJobClient backgroundJobs)
+            IBackgroundJobClient backgroundJobs )
             : base(services)
         {
             _appUserManager = appUserManager;
@@ -121,6 +121,8 @@ namespace GeoBoardWebAPI.Controllers
             // Account not yet activated.
             return BadRequest(_localizer["Your account has not yet been activated"]);
         }
+
+        
 
         [AllowAnonymous]
         [HttpPost("Register")]

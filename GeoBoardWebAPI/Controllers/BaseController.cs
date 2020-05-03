@@ -34,6 +34,7 @@ namespace GeoBoardWebAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public abstract class BaseController : Controller
     {
+        
         protected readonly IMapper _mapper;
         protected readonly IStringLocalizer<Startup> _localizer;
         protected readonly UserRepository UserRepository;
@@ -45,6 +46,7 @@ namespace GeoBoardWebAPI.Controllers
             UserRepository = scopeFactory.GetRequiredService<UserRepository>();
         }
 
+        [NonAction]
         public T GetFromQueryString<T>(HttpRequest request) where T : new()
         {
             var obj = new T();
@@ -62,6 +64,7 @@ namespace GeoBoardWebAPI.Controllers
             return obj;
         }
 
+        [NonAction]
         public object Parse(Type dataType, string ValueToConvert)
         {
             TypeConverter obj = TypeDescriptor.GetConverter(dataType);
@@ -70,6 +73,8 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         #region ReturnMethods
+
+        [NonAction]
         protected async virtual Task<OkObjectResult> Ok<TEntity, TViewModel>(
             IQueryable<TEntity> queryable,
             params (Expression<Func<TEntity, object>> orderByKey, System.ComponentModel.ListSortDirection sortDirection)[] defaultOrderBy)

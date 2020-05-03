@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using GeoBoardWebAPI.Services;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.OpenApi.Models;
 
 namespace GeoBoardWebAPI
 {
@@ -76,6 +77,15 @@ namespace GeoBoardWebAPI
                 options.Lockout.MaxFailedAccessAttempts = 7;
                 options.Lockout.AllowedForNewUsers = true;
                 options.SignIn.RequireConfirmedEmail = false;
+            });
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "GeoBoard API"
+                });
             });
 
             // Configure JWT authentication.
@@ -191,6 +201,13 @@ namespace GeoBoardWebAPI
             // Enable authentication and authorization.
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
 
             // Setup the endpoints.
             app.UseEndpoints(endpoints =>
@@ -480,9 +497,7 @@ namespace GeoBoardWebAPI
                             await roleManager.AddClaimAsync(identityRole, claim);
                         }
                     }
-
                 };
-
 
                 foreach (var role in userRoles)
                 {
