@@ -11,6 +11,8 @@ using GeoBoardWebAPI.Models.Account;
 
 namespace GeoBoardWebAPI.Controllers
 {
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [Authorize]
     [TypeFilter(typeof(ValidateModelAttribute))]
     public class UserController : BaseController

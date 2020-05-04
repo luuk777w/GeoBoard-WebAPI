@@ -11,6 +11,8 @@ using GeoBoardWebAPI.Models.Country;
 
 namespace GeoBoardWebAPI.Controllers
 {
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [TypeFilter(typeof(ValidateModelAttribute))]
     public class CountryController : BaseController
     {

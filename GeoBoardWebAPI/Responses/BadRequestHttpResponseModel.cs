@@ -51,6 +51,7 @@ namespace GeoBoardWebAPI.Responses
         /// Construct an API Bad Request response using a collection of <see cref="IdentityError"/>.
         /// </summary>
         /// <param name="identityErrors"></param>
+        /// <param name="modelState"></param>
         public BadRequestHttpResponseModel(IEnumerable<IdentityError> identityErrors, ref ModelStateDictionary modelState) : base(400)
         {
             // Loop through each identity error
