@@ -10,7 +10,6 @@ namespace GeoBoardWebAPI.Models.Account
         public string Email { get; set; }
 
         [DataType(DataType.Url)]
-        [AppRequired]
         public string ReturnUrl { get; set; }
     }
 }

@@ -184,8 +184,8 @@ namespace GeoBoardWebAPI.Controllers
             await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Confirm your account"], emailModel, "Email/ConfirmUserAccount");
         }
 
+        [AllowAnonymous]
         [HttpPost("ResendActivationEmail")]
-        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> ResendActivationEmail([FromBody] ActivateViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -197,11 +197,11 @@ namespace GeoBoardWebAPI.Controllers
             var emailModel = new ActivateAccountEmailViewModel
             {
                 Email = user.Email,
-                Token = await _appUserManager.GeneratePasswordResetTokenAsync(user),
+                Token = HttpUtility.UrlEncode(await _appUserManager.GenerateEmailConfirmationTokenAsync(user)),
                 ValidTill = DateTime.Now.AddHours(6)
             };
 
-            await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Account confirmation"], emailModel, "Account/ConfirmUserAccount");
+            _backgroundJobs.Enqueue(() => SendActivateAccountEmail(emailModel));
 
             return Ok();
         }
@@ -221,12 +221,10 @@ namespace GeoBoardWebAPI.Controllers
                     var confirmResult = await _appUserManager.ConfirmEmailAsync(user, model.Token);
                     if (confirmResult.Succeeded)
                     {
-                        _logger.LogInformation($"{user.Email} has confirmed the account.");
-
                         return Ok(_localizer["AccountConfirmed"]);
                     }
 
-                    return Ok(confirmResult.Errors);
+                    return BadRequest(confirmResult.Errors);
                 }
 
             }
