@@ -191,6 +191,7 @@ namespace GeoBoardWebAPI.Controllers
                 Email = user.Email,
                 Username = user.UserName,
                 Token = HttpUtility.UrlEncode(await _appUserManager.GenerateEmailConfirmationTokenAsync(user)),
+                ValidTill = DateTime.Now.AddHours(6)
             };
 
             await _appUserManager.AddToRoleAsync(await _appUserManager.FindByNameAsync(model.Username), "User");
@@ -219,6 +220,7 @@ namespace GeoBoardWebAPI.Controllers
             var emailModel = new ActivateAccountEmailViewModel
             {
                 Email = user.Email,
+                Username = user.UserName,
                 Token = HttpUtility.UrlEncode(await _appUserManager.GenerateEmailConfirmationTokenAsync(user)),
                 ValidTill = DateTime.Now.AddHours(6)
             };
