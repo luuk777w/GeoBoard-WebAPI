@@ -60,7 +60,7 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("authorize")]
+        [HttpPost("Authorize")]
         public async Task<IActionResult> Authorize([FromBody] LoginViewModel model)
         {
             // Validate request
