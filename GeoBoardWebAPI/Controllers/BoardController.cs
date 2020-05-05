@@ -10,9 +10,11 @@ using GeoBoardWebAPI.Models.Board;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GeoBoardWebAPI.Controllers
 {
+    [Route("boards")]
     public class BoardController : BaseController
     {
         private readonly BoardRepository BoardRepository;
@@ -29,7 +31,23 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("Create")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllBoard()
+        {
+            var boards = BoardRepository.GetAll();
+
+            if (! User.IsInRole("Administrator"))
+            {
+                boards = boards.Where(b => b.UserId == GetUserId());
+            }
+
+            return Ok(
+                _mapper.Map<List<BoardViewModel>>(await boards.ToListAsync())    
+            );
+        }
+
+        [Authorize]
+        [HttpPost]
         public async Task<IActionResult> CreateBoard([FromBody] CreateBoardMutateModel model)
         {
             if (!ModelState.IsValid)
@@ -37,7 +55,7 @@ namespace GeoBoardWebAPI.Controllers
 
             var board = _mapper.Map<Board>(model);
 
-            board.UserId = (await this.appUserManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier))).Id;
+            board.UserId = GetUserId().Value;
 
             BoardRepository.Add(board);
             await BoardRepository.SaveChangesAsync();
