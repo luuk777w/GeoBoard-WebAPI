@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GeoBoardWebAPI.DAL.Entities;
 using GeoBoardWebAPI.Models.Account;
+using GeoBoardWebAPI.Models.Board;
 using GeoBoardWebAPI.Models.Country;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,9 @@ namespace GeoBoardWebAPI.Extensions
 
             CreateMap<User, UserViewModel>();
             CreateMap<UserMutateModel, User>();
+
+            CreateMap<Board, BoardViewModel>();
+            CreateMap<CreateBoardMutateModel, Board>();
         }
     }
 }

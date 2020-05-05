@@ -47,9 +47,9 @@ namespace GeoBoardWebAPI
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
             // Register the repository services.
-            services.AddScoped(typeof(CountryRepository), typeof(CountryRepository));
-            services.AddScoped(typeof(UserRepository), typeof(UserRepository));
-            services.AddScoped(typeof(Repository<User>), typeof(UserRepository));
+            services.AddScoped<CountryRepository>();
+            services.AddScoped<UserRepository>();
+            services.AddScoped<BoardRepository>();
 
             // Register tge services.
             services.AddScoped(typeof(ITemplateService), typeof(TemplateService));
@@ -245,7 +245,9 @@ namespace GeoBoardWebAPI
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action}/{id?}");
+
                 endpoints.MapHub<HomeHub>("/homehub");
+                endpoints.MapHub<BoardHub>("/boardhub");
             });
 
             //SeedDatabase(services).GetAwaiter().GetResult();
