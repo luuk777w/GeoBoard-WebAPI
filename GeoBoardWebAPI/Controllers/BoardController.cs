@@ -34,7 +34,9 @@ namespace GeoBoardWebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBoards()
         {
-            var boards = BoardRepository.GetAll();
+            var boards = BoardRepository
+                .GetAll()
+                .AsNoTracking();
 
             if (! User.IsInRole("Administrator"))
             {
@@ -48,12 +50,18 @@ namespace GeoBoardWebAPI.Controllers
 
         [Authorize]
         [HttpGet("{boardId}")]
-        public async Task<IActionResult> GetBoard([FromRoute] Guid boardId)
+        public async Task<IActionResult> GetBoard([FromRoute] Guid boardId, [FromQuery] bool includeElements = false)
         {
             var board = await BoardRepository
                 .GetAll()
                 .Include(b => b.Users)
+                .AsNoTracking()
                 .SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+
+            if (includeElements)
+            {
+                //
+            }
 
             if (board == null)
                 return NotFound($"No board with ID {boardId} found.");
@@ -79,6 +87,7 @@ namespace GeoBoardWebAPI.Controllers
                 .Include(b => b.Users)
                 .Include(b => b.Elements)
                     .ThenInclude(e => e.User)
+                .AsNoTracking()
                 .SingleOrDefaultAsync(b => b.Id.Equals(boardId));
 
             if (board == null)
