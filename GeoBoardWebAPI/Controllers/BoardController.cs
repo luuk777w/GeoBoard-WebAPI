@@ -32,7 +32,7 @@ namespace GeoBoardWebAPI.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetAllBoard()
+        public async Task<IActionResult> GetAllBoards()
         {
             var boards = BoardRepository.GetAll();
 
@@ -44,6 +44,56 @@ namespace GeoBoardWebAPI.Controllers
             return Ok(
                 _mapper.Map<List<BoardViewModel>>(await boards.ToListAsync())    
             );
+        }
+
+        [Authorize]
+        [HttpGet("{boardId}")]
+        public async Task<IActionResult> GetBoard([FromRoute] Guid boardId)
+        {
+            var board = await BoardRepository
+                .GetAll()
+                .Include(b => b.Users)
+                .SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+
+            if (board == null)
+                return NotFound($"No board with ID {boardId} found.");
+
+            bool userIsPartOfBoard = board.Users.Any(ub => ub.UserId.Equals(GetUserId()));
+
+            if (board.UserId.Equals(GetUserId()) || userIsPartOfBoard || User.IsInRole("Administrator"))
+            {
+                return Ok(
+                    _mapper.Map<BoardViewModel>(board)
+                );
+            }
+
+            return Forbid();
+        }
+
+        [Authorize]
+        [HttpGet("{boardId}/elements")]
+        public async Task<IActionResult> GetBoardElements([FromRoute] Guid boardId)
+        {
+            var board = await BoardRepository
+                .GetAll()
+                .Include(b => b.Users)
+                .Include(b => b.Elements)
+                    .ThenInclude(e => e.User)
+                .SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+
+            if (board == null)
+                return NotFound($"No board with ID {boardId} found.");
+
+            bool userIsPartOfBoard = board.Users.Any(ub => ub.UserId.Equals(GetUserId()));
+
+            if (board.UserId.Equals(GetUserId()) || userIsPartOfBoard || User.IsInRole("Administrator"))
+            {
+                return Ok(
+                    _mapper.Map<List<BoardElementViewModel>>(board.Elements)
+                );
+            }
+
+            return Forbid();
         }
 
         [Authorize]

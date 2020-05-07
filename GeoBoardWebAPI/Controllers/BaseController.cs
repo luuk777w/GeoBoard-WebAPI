@@ -34,7 +34,7 @@ namespace GeoBoardWebAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public abstract class BaseController : Controller
     {
-        
+
         protected readonly IMapper _mapper;
         protected readonly IStringLocalizer<Startup> _localizer;
         protected readonly UserRepository UserRepository;
@@ -152,7 +152,7 @@ namespace GeoBoardWebAPI.Controllers
             var configuration = new MapperConfiguration(cfg => {
                 cfg.CreateMap<TEntity, TViewModel>();
                 cfg.AddProfile(new MappingProfile());
-                }) ;
+            });
 
             var items = await queryable.ProjectTo<TViewModel>(configuration).ToListAsync();
 
@@ -169,6 +169,37 @@ namespace GeoBoardWebAPI.Controllers
             };
 
             return Ok(responseModel);
+        }
+
+        [NonAction]
+        protected new NotFoundObjectResult NotFound()
+        {
+            var response = new HttpResponseModel(400);
+
+            return NotFound(response);
+        }
+
+        [NonAction]
+        protected NotFoundObjectResult NotFound(string message)
+        {
+            var response = new HttpResponseModel(404, message);
+
+            return NotFound(response);
+        }
+
+        [NonAction]
+        protected new ObjectResult Forbid()
+        {
+            var response = new HttpResponseModel(403);
+
+            return StatusCode(403, response);
+        }
+
+        protected ObjectResult Forbid(string message)
+        {
+            var response = new HttpResponseModel(403, message);
+
+            return StatusCode(403, response);
         }
 
         [NonAction]

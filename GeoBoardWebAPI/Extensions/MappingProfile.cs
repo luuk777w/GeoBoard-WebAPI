@@ -18,10 +18,14 @@ namespace GeoBoardWebAPI.Extensions
             CreateMap<CountryMutateModel, Country>();
 
             CreateMap<User, UserViewModel>();
+            CreateMap<User, BoardElementUserViewModel>();
             CreateMap<UserMutateModel, User>();
 
             CreateMap<Board, BoardViewModel>();
             CreateMap<CreateBoardMutateModel, Board>();
+
+            CreateMap<BoardElement, BoardElementViewModel>();
+            //CreateMap<CreateBoardElementMutateModel, BoardElement>();
         }
     }
 }

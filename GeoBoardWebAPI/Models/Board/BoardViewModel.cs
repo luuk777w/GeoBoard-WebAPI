@@ -41,7 +41,7 @@ namespace GeoBoardWebAPI.Models.Board
         /// <summary>
         /// The collection of elements on this board.
         /// </summary>
-        //public ICollection<BoardElement> Elements { get; set; }
+        public ICollection<BoardElementViewModel> Elements { get; set; }
 
         /// <summary>
         /// The collection of users who are part of this board.
