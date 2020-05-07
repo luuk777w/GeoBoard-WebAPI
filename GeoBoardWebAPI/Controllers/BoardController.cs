@@ -50,18 +50,20 @@ namespace GeoBoardWebAPI.Controllers
 
         [Authorize]
         [HttpGet("{boardId}")]
-        public async Task<IActionResult> GetBoard([FromRoute] Guid boardId, [FromQuery] bool includeElements = false)
+        public async Task<IActionResult> GetBoard([FromRoute] Guid boardId, [FromQuery] bool includeElements)
         {
-            var board = await BoardRepository
+            var data = BoardRepository
                 .GetAll()
                 .Include(b => b.Users)
-                .AsNoTracking()
-                .SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+                .AsQueryable()
+                .AsNoTracking();
 
             if (includeElements)
             {
-                //
+                data = data.Include(b => b.Elements);
             }
+
+            var board = await data.SingleOrDefaultAsync(b => b.Id.Equals(boardId));
 
             if (board == null)
                 return NotFound($"No board with ID {boardId} found.");
