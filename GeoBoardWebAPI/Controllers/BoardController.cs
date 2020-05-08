@@ -60,7 +60,9 @@ namespace GeoBoardWebAPI.Controllers
 
             if (includeElements)
             {
-                data = data.Include(b => b.Elements);
+                data = data
+                    .Include(b => b.Elements)
+                        .ThenInclude(e => e.User);
             }
 
             var board = await data.SingleOrDefaultAsync(b => b.Id.Equals(boardId));
