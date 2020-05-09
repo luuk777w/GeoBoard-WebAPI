@@ -11,7 +11,7 @@ namespace GeoBoardWebAPI.Models.Board
     public class BoardElementViewModel
     {
         /// <summary>
-        /// The unique identifier of this board.
+        /// The unique identifier of this element.
         /// </summary>
         public Guid Id { get; set; }
 
