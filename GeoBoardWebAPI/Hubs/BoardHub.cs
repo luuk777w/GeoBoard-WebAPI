@@ -13,6 +13,7 @@ using GeoBoardWebAPI.DAL.Entities;
 using GeoBoardWebAPI.Models;
 using AutoMapper;
 using GeoBoardWebAPI.Controllers;
+using GeoBoardWebAPI.Models.Board;
 
 namespace GeoBoardWebAPI.Hubs
 {
@@ -34,9 +35,9 @@ namespace GeoBoardWebAPI.Hubs
             return Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
         }
 
-        public async Task SendMessage(string user, string message)
+        public async Task CreateBoard(CreateBoardMutateModel model)
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
+            await Clients.All.SendAsync("BoardCreated", model);
         }
     }
 }
