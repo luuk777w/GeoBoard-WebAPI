@@ -126,12 +126,12 @@ namespace GeoBoardWebAPI
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            }).AddJwtBearer(cfg =>
+            }).AddJwtBearer(options =>
             {
-                cfg.RequireHttpsMetadata = false;
-                cfg.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
 
-                cfg.TokenValidationParameters = new TokenValidationParameters()
+                options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidIssuer = Configuration["Tokens:Issuer"],
                     ValidAudience = Configuration["Tokens:Issuer"],
@@ -140,6 +140,28 @@ namespace GeoBoardWebAPI
                     ClockSkew = TimeSpan.Zero
                 };
 
+                // We have to hook the OnMessageReceived event in order to
+                // allow the JWT authentication handler to read the access
+                // token from the query string when a WebSocket or 
+                // Server-Sent Events request comes in.
+                // https://docs.microsoft.com/en-us/aspnet/core/signalr/authn-and-authz?view=aspnetcore-3.1#bearer-token-authentication
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/boardHub")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             // Setup CORS.
