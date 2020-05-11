@@ -58,6 +58,8 @@ namespace GeoBoardWebAPI.Hubs
 
             await Groups.AddToGroupAsync(Context.ConnectionId, board.Id.ToString());
 
+            await Clients.Caller.SendAsync("SwitchedBoard", _mapper.Map<BoardViewModel>(board));
+
             return _mapper.Map<BoardViewModel>(board);
         }
     }
