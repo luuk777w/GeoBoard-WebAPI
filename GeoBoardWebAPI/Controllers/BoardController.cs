@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -19,15 +20,20 @@ namespace GeoBoardWebAPI.Controllers
     {
         private readonly BoardRepository BoardRepository;
         private readonly AppUserManager appUserManager;
+        public IConfiguration Configuration { get; }
+
 
         public BoardController(
             IServiceProvider scopeFactory,
             BoardRepository boardRepository,
-            AppUserManager appUserManager
+            AppUserManager appUserManager,
+            IConfiguration configuration
         ) : base(scopeFactory)
         {
             BoardRepository = boardRepository;
             this.appUserManager = appUserManager;
+            Configuration = configuration;
+
         }
 
         [Authorize]
