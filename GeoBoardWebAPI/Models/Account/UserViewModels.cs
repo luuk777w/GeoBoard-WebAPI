@@ -9,12 +9,21 @@ namespace GeoBoardWebAPI.Models.Account
 {
     public class UserViewModel
     {
+        /// <summary>
+        /// The unique identifier of this user.
+        /// </summary>
         public string Id { get; set; }
 
+        /// <summary>
+        /// The unique name of this user.
+        /// </summary>
         [AppRequired]
         [Orderable, Searchable]
         public string Username { get; set; }
 
+        /// <summary>
+        /// The user's email address used to login.
+        /// </summary>
         [Orderable, Searchable]
         [AppRequired]
         [EmailAddress]

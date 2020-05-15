@@ -55,6 +55,22 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [Authorize]
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveBoards()
+        {
+            var boards = BoardRepository
+                .GetAll()
+                .Include(b => b.Owner)
+                .Include(b => b.Users)
+                .Where(b => b.Users.Any(ub => ub.UserId.Equals(GetUserId())))
+                .AsNoTracking();
+
+            return Ok(
+                _mapper.Map<List<BoardViewModel>>(await boards.ToListAsync())
+            );
+        }
+
+        [Authorize]
         [HttpGet("{boardId}")]
         public async Task<IActionResult> GetBoard([FromRoute] Guid boardId, [FromQuery] bool includeElements)
         {
