@@ -128,16 +128,10 @@ namespace GeoBoardWebAPI.Hubs
         private async Task JoinBoard(string boardId)
         {
             // Set the current board for the current user.
-            //Context.Items[GetUserId()] = boardId;
-
             this.ConnectionMapping.SetUserBoard(GetUserId().ToString(), Context.User.Identity.Name, boardId);
 
             // Add the user to the group named with the board id.
             await Groups.AddToGroupAsync(Context.ConnectionId, boardId);
-
-            var test = this.ConnectionMapping.GetJoinedBoardUsers(boardId)
-                    //.Where(bu => !bu.Id.Equals(GetUserId().ToString()))
-                    .OrderBy(bu => bu.Username);
 
             // Notify other users about this user joining.
             await Clients.Group(boardId).SendAsync("UserJoinedBoard", new
@@ -145,7 +139,7 @@ namespace GeoBoardWebAPI.Hubs
                 UserId = GetUserId(),
                 Username = Context.User.Identity.Name,
                 BoardId = boardId,
-                JoinedUsers = test
+                JoinedUsers = this.ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.Username)
             });
         }
 
@@ -166,7 +160,6 @@ namespace GeoBoardWebAPI.Hubs
             });
 
             // Remove the user.
-            //Context.Items.Remove(GetUserId());
             this.ConnectionMapping.RemoveUser(GetUserId().ToString());
         }
 
