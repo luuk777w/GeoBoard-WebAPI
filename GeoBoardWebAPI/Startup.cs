@@ -58,6 +58,8 @@ namespace GeoBoardWebAPI
             // Register the managers.
             services.AddScoped(typeof(AppUserManager), typeof(AppUserManager));
 
+            services.AddSingleton<ConnectionMapping>();
+
             // Configure the database context.
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
