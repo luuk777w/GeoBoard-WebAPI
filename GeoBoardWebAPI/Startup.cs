@@ -170,7 +170,7 @@ namespace GeoBoardWebAPI
             services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
             {
                 builder
-                    .WithOrigins(new[] { "http://localhost", "https://geoboard.app" })
+                    .WithOrigins(new[] { "http://localhost", "https://geoboard.app", "https://geoboard.ga" })
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
@@ -269,6 +269,8 @@ namespace GeoBoardWebAPI
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action}/{id?}");
+
+                endpoints.MapControllers();
 
                 endpoints.MapHub<HomeHub>("/homehub");
                 endpoints.MapHub<BoardHub>("/boardhub");

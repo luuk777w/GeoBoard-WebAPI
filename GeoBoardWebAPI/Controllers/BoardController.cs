@@ -36,7 +36,7 @@ namespace GeoBoardWebAPI.Controllers
 
         }
 
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetAllBoards()
         {
@@ -44,25 +44,21 @@ namespace GeoBoardWebAPI.Controllers
                 .GetAll()
                 .AsNoTracking();
 
-            if (! User.IsInRole("Administrator"))
-            {
-                boards = boards.Where(b => b.UserId == GetUserId());
-            }
-
             return Ok(
                 _mapper.Map<List<BoardViewModel>>(await boards.ToListAsync())    
             );
         }
 
         [Authorize]
-        [HttpGet("active")]
+        [Route("/player-boards")]
         public async Task<IActionResult> GetActiveBoards()
         {
             var boards = BoardRepository
                 .GetAll()
                 .Include(b => b.Owner)
                 .Include(b => b.Users)
-                .Where(b => b.Users.Any(ub => ub.UserId.Equals(GetUserId())))
+                // The user must either be the owner of the board, or be part of the board as a player.
+                .Where(b => b.UserId.Equals(GetUserId()) || b.Users.Any(ub => ub.UserId.Equals(GetUserId())))
                 .AsNoTracking();
 
             return Ok(
