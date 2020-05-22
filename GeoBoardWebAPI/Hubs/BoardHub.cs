@@ -1,22 +1,16 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-using GeoBoardWebAPI.DAL.Repositories;
-using Microsoft.EntityFrameworkCore;
-using GeoBoardWebAPI.Services;
+﻿using AutoMapper;
 using GeoBoardWebAPI.DAL.Entities;
-using GeoBoardWebAPI.Models;
-using AutoMapper;
-using GeoBoardWebAPI.Controllers;
+using GeoBoardWebAPI.DAL.Repositories;
+using GeoBoardWebAPI.Extensions;
 using GeoBoardWebAPI.Models.Board;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace GeoBoardWebAPI.Hubs
 {
@@ -83,7 +77,7 @@ namespace GeoBoardWebAPI.Hubs
             User user = await _userManager.FindByIdAsync(GetUserId().ToString());
             var boardToBeSwitchedTo = await BoardRepository.GetAll().Include(b => b.Users).FirstOrDefaultAsync(b => b.Id.Equals(toBoardId));
 
-            if (boardToBeSwitchedTo == null || !user.HasPermissionToSwitchBoard(boardToBeSwitchedTo, _userManager)) 
+            if (boardToBeSwitchedTo == null || ! user.HasPermissionToSwitchBoard(boardToBeSwitchedTo, _userManager)) 
             {
                 await Clients.Caller.SendAsync("BoardNotFound", toBoardId);
                 return null;
@@ -135,17 +129,5 @@ namespace GeoBoardWebAPI.Hubs
         {
             return new Guid(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
-    }
-}
-
-public static class UserExtension
-{
-    public static bool HasPermissionToSwitchBoard(this User user, Board boardToBeSwitchedTo, UserManager<User> _userManager)
-    {
-        bool userAlreadyInBoard = boardToBeSwitchedTo.Users.Any(ub => ub.UserId.Equals(user.Id));
-        bool isAdmin = Task.Run(async () => await _userManager.IsInRoleAsync(user, "Administrator")).Result;
-        bool isPartOfBoard = boardToBeSwitchedTo.UserId.Equals(user.Id);
-
-        return isPartOfBoard || userAlreadyInBoard || isAdmin;
     }
 }

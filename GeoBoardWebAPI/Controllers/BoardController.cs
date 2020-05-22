@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using GeoBoardWebAPI.DAL.Entities;
 using GeoBoardWebAPI.DAL.Repositories;
-using GeoBoardWebAPI.Extensions.Authorization;
+using GeoBoardWebAPI.Util.Authorization;
 using GeoBoardWebAPI.Models.Board;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

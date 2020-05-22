@@ -21,10 +21,10 @@ using System.Threading.Tasks;
 using GeoBoardWebAPI.Attributes;
 using GeoBoardWebAPI.DAL.Entities;
 using GeoBoardWebAPI.DAL.Repositories;
-using GeoBoardWebAPI.Extensions.Authorization;
+using GeoBoardWebAPI.Util.Authorization;
 using GeoBoardWebAPI.Models;
 using GeoBoardWebAPI.Responses;
-using GeoBoardWebAPI.Extensions;
+using GeoBoardWebAPI.Util;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Identity;
 

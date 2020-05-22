@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using GeoBoardWebAPI.DAL.Entities;
 using GeoBoardWebAPI.DAL.Repositories;
 
-namespace GeoBoardWebAPI.Extensions.Authorization
+namespace GeoBoardWebAPI.Util.Authorization
 {
     public class AppUserManager : UserManager<User>
     {

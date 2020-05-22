@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using GeoBoardWebAPI.Attributes;
 using GeoBoardWebAPI.DAL.Entities;
 using GeoBoardWebAPI.DAL.Repositories;
-using GeoBoardWebAPI.Extensions.Authorization;
+using GeoBoardWebAPI.Util.Authorization;
 using GeoBoardWebAPI.Models.Account;
 
 namespace GeoBoardWebAPI.Controllers

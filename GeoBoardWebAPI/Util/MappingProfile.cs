@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GeoBoardWebAPI.Extensions
+namespace GeoBoardWebAPI.Util
 {
     public class MappingProfile : Profile
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GeoBoardWebAPI.Extensions.Authorization.Claims
+namespace GeoBoardWebAPI.Util.Authorization.Claims
 {
     public static class AppClaimTypes
     {
