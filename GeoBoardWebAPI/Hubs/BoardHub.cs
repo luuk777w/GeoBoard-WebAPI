@@ -75,71 +75,39 @@ namespace GeoBoardWebAPI.Hubs
         /// <summary>
         /// Switch from the given board to another given board.
         /// </summary>
-        /// <param name="fromBoardId">The board that is switched from (if any)</param>
+        /// <param name="currentBoardId">The board that is switched from (if any)</param>
         /// <param name="toBoardId">The board to switch to.</param>
         /// <returns></returns>
-        public async Task<BoardViewModel> SwitchBoard(Guid? fromBoardId, Guid toBoardId)
+        public async Task<BoardViewModel> SwitchBoard(Guid? currentBoardId, Guid toBoardId)
         {
-            // Attemp to find the board.
-            var newBoard = await BoardRepository
-                .GetAll()
-                .Include(b => b.Users)
-                .FirstOrDefaultAsync(b => b.Id.Equals(toBoardId));
+            User user = await _userManager.FindByIdAsync(GetUserId().ToString());
+            var boardToBeSwitchedTo = await BoardRepository.GetAll().Include(b => b.Users).FirstOrDefaultAsync(b => b.Id.Equals(toBoardId));
 
-            // Check if the board is found.
-            if (newBoard == null) {
+            if (boardToBeSwitchedTo == null || !user.HasPermissionToSwitchBoard(boardToBeSwitchedTo, _userManager)) 
+            {
                 await Clients.Caller.SendAsync("BoardNotFound", toBoardId);
-
                 return null;
             }
 
-            // Check if the current user is part of the board.
-            bool userIsPartOfBoard = newBoard.Users.Any(ub => ub.UserId.Equals(GetUserId()));
+            if (currentBoardId != null) await LeaveBoard(currentBoardId.ToString());
 
-            // Get the user from the current request.
-            User user = await _userManager.FindByIdAsync(GetUserId().ToString());
+            await JoinBoard(boardToBeSwitchedTo.Id.ToString());
+            await Clients.Caller.SendAsync("SwitchedBoard", _mapper.Map<BoardViewModel>(boardToBeSwitchedTo));
 
-            // Check if the current user has permission to switch to the requested board.
-            if (newBoard.UserId.Equals(GetUserId()) || userIsPartOfBoard || (await _userManager.IsInRoleAsync(user, "Administrator")))
-            {
-                // Remove the user from the current board (if any).
-                if (fromBoardId != null)
-                {
-                    // Notify the other users about leaving the board.
-                    await LeaveBoard(fromBoardId.ToString());
-                }
-
-                // Notify the other users.
-                await JoinBoard(newBoard.Id.ToString());
-
-                // Notify the listeners.
-                await Clients.Caller.SendAsync("SwitchedBoard", _mapper.Map<BoardViewModel>(newBoard));
-
-                // Return the board model for later usage.
-                return _mapper.Map<BoardViewModel>(newBoard);
-            }
-
-            // Access denied, send a BoardNotFound to hide the existence of the board.
-            await Clients.Caller.SendAsync("BoardNotFound", toBoardId);
-
-            return null;
+            return _mapper.Map<BoardViewModel>(boardToBeSwitchedTo);
         }
 
         private async Task JoinBoard(string boardId)
         {
-            // Set the current board for the current user.
-            this.ConnectionMapping.SetUserBoard(GetUserId().ToString(), Context.User.Identity.Name, boardId);
-
-            // Add the user to the group named with the board id.
+            ConnectionMapping.SetUserBoard(GetUserId().ToString(), Context.User.Identity.Name, boardId);
             await Groups.AddToGroupAsync(Context.ConnectionId, boardId);
 
-            // Notify other users about this user joining.
             await Clients.Group(boardId).SendAsync("UserJoinedBoard", new
             {
                 UserId = GetUserId(),
                 Username = Context.User.Identity.Name,
                 BoardId = boardId,
-                JoinedUsers = this.ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.Username)
+                JoinedUsers = ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.Username)
             });
         }
 
@@ -167,5 +135,17 @@ namespace GeoBoardWebAPI.Hubs
         {
             return new Guid(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
+    }
+}
+
+public static class UserExtension
+{
+    public static bool HasPermissionToSwitchBoard(this User user, Board boardToBeSwitchedTo, UserManager<User> _userManager)
+    {
+        bool userAlreadyInBoard = boardToBeSwitchedTo.Users.Any(ub => ub.UserId.Equals(user.Id));
+        bool isAdmin = Task.Run(async () => await _userManager.IsInRoleAsync(user, "Administrator")).Result;
+        bool isPartOfBoard = boardToBeSwitchedTo.UserId.Equals(user.Id);
+
+        return isPartOfBoard || userAlreadyInBoard || isAdmin;
     }
 }
