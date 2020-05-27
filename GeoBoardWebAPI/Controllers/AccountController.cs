@@ -208,14 +208,14 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("ResendActivationEmail")]
+        [HttpPost("resend-activation-email")]
         public async Task<IActionResult> ResendActivationEmail([FromBody] ActivateViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var user = await _appUserManager.FindByEmailAsync(model.Email);
             if (user == null) return BadRequest(_localizer["This account is unknown"]);
             if (user.IsLocked) return BadRequest(_localizer["This account has been locked"]);
-            if (user.EmailConfirmed) return BadRequest(_localizer["This account has already been activted"]);
+            if (user.EmailConfirmed) return BadRequest(_localizer["This account has already been activated"]);
 
             var emailModel = new ActivateAccountEmailViewModel
             {
