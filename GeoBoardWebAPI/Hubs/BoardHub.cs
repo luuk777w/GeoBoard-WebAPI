@@ -75,7 +75,11 @@ namespace GeoBoardWebAPI.Hubs
         public async Task<BoardViewModel> SwitchBoard(Guid? currentBoardId, Guid toBoardId)
         {
             User user = await _userManager.FindByIdAsync(GetUserId().ToString());
-            var boardToBeSwitchedTo = await BoardRepository.GetAll().Include(b => b.Users).Include(b => b.Elements).FirstOrDefaultAsync(b => b.Id.Equals(toBoardId));
+            var boardToBeSwitchedTo = await BoardRepository.GetAll()
+                .Include(b => b.Users)
+                .Include(b => b.Elements)
+                    .ThenInclude(e => e.User)
+                .FirstOrDefaultAsync(b => b.Id.Equals(toBoardId));
 
             if (boardToBeSwitchedTo == null || ! user.HasPermissionToSwitchBoard(boardToBeSwitchedTo, _userManager)) 
             {
