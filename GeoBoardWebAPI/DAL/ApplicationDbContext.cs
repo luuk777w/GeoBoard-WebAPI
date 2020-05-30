@@ -55,7 +55,6 @@ namespace GeoBoardWebAPI.DAL
                     .WithMany(s => s.Elements)
                     .HasForeignKey(sse => sse.SnapshotId)
                     .OnDelete(DeleteBehavior.Restrict);
-                ;
             });
         }
     }

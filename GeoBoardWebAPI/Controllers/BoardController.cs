@@ -141,7 +141,7 @@ namespace GeoBoardWebAPI.Controllers
             BoardRepository.Add(board);
             await BoardRepository.SaveChangesAsync();
 
-            board = await BoardRepository.GetAll().Include(x => x.Owner).Where(x => x.Id == board.Id).FirstOrDefaultAsync();
+            board = await BoardRepository.GetAll().AsNoTracking().Include(x => x.Owner).Where(x => x.Id == board.Id).FirstOrDefaultAsync();
 
             return CreatedAtAction(nameof(GetBoard), _mapper.Map<BoardViewModel>(board));
         }
@@ -150,9 +150,14 @@ namespace GeoBoardWebAPI.Controllers
         [HttpDelete("{boardId}")]
         public async Task<IActionResult> RemoveBoard([FromRoute] Guid boardId)
         {
-            //TODO @Matthijs
+            var board = await BoardRepository.GetAll().AsNoTracking().SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+            if (board == null)
+                return NotFound($"No board with ID {boardId} found.");
 
-            return Ok();
+            BoardRepository.Remove(board);
+            await BoardRepository.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
