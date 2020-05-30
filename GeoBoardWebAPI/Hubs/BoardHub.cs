@@ -122,7 +122,8 @@ namespace GeoBoardWebAPI.Hubs
             {
                 UserId = GetUserId(),
                 Username = Context.User.Identity.Name,
-                BoardId = boardId
+                BoardId = boardId,
+                JoinedUsers = ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.Username)
             });
 
             // Remove the user.

@@ -46,10 +46,10 @@ namespace GeoBoardWebAPI.Hubs
         /// Get a list of users who are viewing the given board.
         /// </summary>
         /// <param name="boardId">The board Id to get users for.</param>
-        public IEnumerable<JoinedBoardUserViewModel> GetJoinedBoardUsers(string boardId)
+        public IEnumerable<BoardUserViewModel> GetJoinedBoardUsers(string boardId)
         {
             return UserBoard
-                .Where(ub => ub.Value.Equals(boardId)).Select(ub => new JoinedBoardUserViewModel
+                .Where(ub => ub.Value.Equals(boardId)).Select(ub => new BoardUserViewModel
                 {
                     Id = ub.Key,
                     Username = this.Users[ub.Key]

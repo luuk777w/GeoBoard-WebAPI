@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GeoBoardWebAPI.Models.Account
 {
-    public class JoinedBoardUserViewModel
+    public class BoardUserViewModel
     {
         /// <summary>
         /// The user's unique identifier.
@@ -13,7 +13,7 @@ namespace GeoBoardWebAPI.Models.Account
         public string Id { get; set; }
 
         /// <summary>
-        /// The user's username
+        /// The user's username.
         /// </summary>
         public string Username { get; set; }
     }
