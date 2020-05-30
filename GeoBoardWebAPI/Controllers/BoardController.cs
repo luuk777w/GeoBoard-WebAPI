@@ -143,7 +143,7 @@ namespace GeoBoardWebAPI.Controllers
 
             board = await BoardRepository.GetAll().Include(x => x.Owner).Where(x => x.Id == board.Id).FirstOrDefaultAsync();
 
-            return CreatedAtAction("CreateBoard", _mapper.Map<BoardViewModel>(board));
+            return CreatedAtAction(nameof(GetBoard), _mapper.Map<BoardViewModel>(board));
         }
 
         [Authorize]
