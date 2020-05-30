@@ -141,7 +141,18 @@ namespace GeoBoardWebAPI.Controllers
             BoardRepository.Add(board);
             await BoardRepository.SaveChangesAsync();
 
+            board = await BoardRepository.GetAll().Include(x => x.Owner).Where(x => x.Id == board.Id).FirstOrDefaultAsync();
+
             return Ok(_mapper.Map<BoardViewModel>(board));
+        }
+
+        [Authorize]
+        [HttpDelete("{boardId}")]
+        public async Task<IActionResult> RemoveBoard([FromRoute] Guid boardId)
+        {
+            //TODO @Matthijs
+
+            return Ok();
         }
     }
 }
