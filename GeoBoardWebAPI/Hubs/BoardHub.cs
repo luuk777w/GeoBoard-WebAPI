@@ -69,30 +69,37 @@ namespace GeoBoardWebAPI.Hubs
         /// <summary>
         /// Switch from the given board to another given board.
         /// </summary>
-        /// <param name="currentBoardId">The board that is switched from (if any)</param>
-        /// <param name="toBoardId">The board to switch to.</param>
+        /// <param name="boardIdToSwitchFrom">The BoardId to switch from (if any).</param>
+        /// <param name="boardIdToSwitchTo">The BoardId to switch to.</param>
         /// <returns></returns>
-        public async Task<BoardViewModel> SwitchBoard(Guid? currentBoardId, Guid toBoardId)
+        public async Task<BoardViewModel> SwitchBoard(Guid? boardIdToSwitchFrom, Guid boardIdToSwitchTo)
         {
-            User user = await _userManager.FindByIdAsync(GetUserId().ToString());
-            var boardToBeSwitchedTo = await BoardRepository.GetAll()
-                .Include(b => b.Users)
-                .Include(b => b.Elements)
-                    .ThenInclude(e => e.User)
-                .FirstOrDefaultAsync(b => b.Id.Equals(toBoardId));
-
-            if (boardToBeSwitchedTo == null || ! user.HasPermissionToSwitchBoard(boardToBeSwitchedTo, _userManager)) 
+            if (boardIdToSwitchFrom.Equals(boardIdToSwitchTo))
             {
-                await Clients.Caller.SendAsync("BoardNotFound", toBoardId);
+                await LeaveBoard(boardIdToSwitchTo.ToString());
+
                 return null;
             }
 
-            if (currentBoardId.HasValue) await LeaveBoard(currentBoardId.ToString());
+            User user = await _userManager.FindByIdAsync(GetUserId().ToString());
+            var boardToSwitchTo = await BoardRepository.GetAll()
+                .Include(b => b.Users)
+                .Include(b => b.Elements)
+                    .ThenInclude(e => e.User)
+                .FirstOrDefaultAsync(b => b.Id.Equals(boardIdToSwitchTo));
 
-            await JoinBoard(boardToBeSwitchedTo.Id.ToString());
-            await Clients.Caller.SendAsync("SwitchedBoard", _mapper.Map<BoardViewModel>(boardToBeSwitchedTo));
+            if (boardToSwitchTo == null || ! user.HasPermissionToSwitchBoard(boardToSwitchTo, _userManager)) 
+            {
+                await Clients.Caller.SendAsync("BoardNotFound", boardIdToSwitchTo);
+                return null;
+            }
 
-            return _mapper.Map<BoardViewModel>(boardToBeSwitchedTo);
+            if (boardIdToSwitchFrom.HasValue) await LeaveBoard(boardIdToSwitchFrom.ToString());
+
+            await JoinBoard(boardToSwitchTo.Id.ToString());
+            await Clients.Caller.SendAsync("SwitchedBoard", _mapper.Map<BoardViewModel>(boardToSwitchTo));
+
+            return _mapper.Map<BoardViewModel>(boardToSwitchTo);
         }
 
         private async Task JoinBoard(string boardId)
@@ -117,6 +124,9 @@ namespace GeoBoardWebAPI.Hubs
             // Remove the user from the group.
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, boardId.ToString());
 
+            // Remove the user.
+            this.ConnectionMapping.RemoveUser(GetUserId().ToString());
+
             // Notify other users about this user leaving.
             await Clients.OthersInGroup(boardId).SendAsync("UserLeftBoard", new
             {
@@ -125,9 +135,6 @@ namespace GeoBoardWebAPI.Hubs
                 BoardId = boardId,
                 JoinedUsers = ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.Username)
             });
-
-            // Remove the user.
-            this.ConnectionMapping.RemoveUser(GetUserId().ToString());
         }
 
         private Guid? GetUserId()
