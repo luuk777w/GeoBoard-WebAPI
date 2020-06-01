@@ -26,8 +26,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace GeoBoardWebAPI.Controllers
 {
-    [Produces("application/json")]
-    [Consumes("application/json")]
     [Authorize]
     public class AccountController : BaseController
     {
@@ -65,24 +63,9 @@ namespace GeoBoardWebAPI.Controllers
         /// <summary>
         /// Authorize yourself to the system.
         /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     POST /Authorize
-        ///     {
-        ///        "username": "LuxMatter",
-        ///        "pasword": "MySecretWord",
-        ///        "rememberMe": true
-        ///     }
-        ///
-        /// </remarks>
         /// <param name="model">The request model containing the request data.</param>
-        /// <response code="200">Succesfully logged in.</response>
-        /// <response code="400">Either the username is unknown, the password is wrong or the user has been locked or blocked.</response>
         [AllowAnonymous]
         [HttpPost("Authorize")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Authorize([FromBody] LoginViewModel model)
         {
             // Validate request

@@ -83,43 +83,6 @@ namespace GeoBoardWebAPI
                 options.SignIn.RequireConfirmedEmail = false;
             });
 
-            // Register the Swagger generator.
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1",
-                    Title = "GeoBoard API"
-                });
-
-                c.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    BearerFormat = "JWT",
-                    Scheme = "bearer"
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "bearer" }
-                        },
-                        new List<string>()
-                    }
-                });
-
-
-                // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                c.IncludeXmlComments(xmlPath);
-            });
-
             // Configure JWT authentication.
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services.AddAuthentication(options =>
@@ -255,13 +218,6 @@ namespace GeoBoardWebAPI
             // Enable authentication and authorization.
             app.UseAuthentication();
             app.UseAuthorization();
-
-            // Configure Swagger
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "GeoBoard API V1");
-            });
 
             // Setup the endpoints.
             app.UseEndpoints(endpoints =>
