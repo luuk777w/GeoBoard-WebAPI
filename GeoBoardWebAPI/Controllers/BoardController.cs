@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -21,6 +23,7 @@ namespace GeoBoardWebAPI.Controllers
         private readonly BoardRepository BoardRepository;
         private readonly AppUserManager appUserManager;
         public IConfiguration Configuration { get; }
+
 
 
         public BoardController(
@@ -144,6 +147,23 @@ namespace GeoBoardWebAPI.Controllers
             board = await BoardRepository.GetAll().AsNoTracking().Include(x => x.Owner).Where(x => x.Id == board.Id).FirstOrDefaultAsync();
 
             return CreatedAtAction(nameof(GetBoard), _mapper.Map<BoardViewModel>(board));
+        }
+
+        [Authorize]
+        [HttpPost("{boardId}/createElement")]
+        public async Task<IActionResult> CreateBoardElement([FromBody] CreateBoardElementViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var dateTime = DateTime.Now;
+            var dateTimeStringMili = dateTime.ToString("dd-MM-yyyyTHH.mm.ss.fff");
+            var dateTimeString = dateTime.ToString("dd-MM-yyyy HH:mm:ss");
+
+            string filePath = Configuration.GetSection("ImageStoragePath").Value + "/" + dateTimeStringMili + ".jpg";
+            System.IO.File.WriteAllBytes(filePath, Convert.FromBase64String(model.Image));
+
+            return Ok();
         }
 
         [Authorize]
