@@ -20,7 +20,9 @@ namespace GeoBoardWebAPI.Models.Board
         /// <summary>
         /// The path to the image when available.
         /// </summary>
-        public string ImagePath { get; set; }
+        public Guid ImageId { get; set; }
+
+        public int ElementNumber { get; set; }
 
         /// <summary>
         /// An optional note for this element.

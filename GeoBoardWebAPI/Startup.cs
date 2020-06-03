@@ -50,6 +50,7 @@ namespace GeoBoardWebAPI
             services.AddScoped<CountryRepository>();
             services.AddScoped<UserRepository>();
             services.AddScoped<BoardRepository>();
+            services.AddScoped<BoardElementRepository>();
 
             // Register tge services.
             services.AddScoped(typeof(ITemplateService), typeof(TemplateService));
