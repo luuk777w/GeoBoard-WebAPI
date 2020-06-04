@@ -22,6 +22,9 @@ namespace GeoBoardWebAPI.DAL.Entities
         [Required]
         public Guid BoardId { get; set; }
 
+        /// <summary>
+        /// The index number indicating the order in which this element was created within the board.
+        /// </summary>
         public int ElementNumber { get; set; }
 
         /// <summary>
@@ -30,9 +33,9 @@ namespace GeoBoardWebAPI.DAL.Entities
         public Board Board { get; set; }
 
         /// <summary>
-        /// The path to the image when available.
+        /// The ID of the attached image when available.
         /// </summary>
-        public Guid ImageId { get; set; }
+        public Guid? ImageId { get; set; }
 
         /// <summary>
         /// An optional note for this element.
