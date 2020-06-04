@@ -128,7 +128,7 @@ namespace GeoBoardWebAPI.Controllers
             if (board.UserId.Equals(GetUserId()) || userIsPartOfBoard || User.IsInRole("Administrator"))
             {
                 return Ok(
-                    _mapper.Map<List<BoardElementViewModel>>(board.Elements.OrderBy(e => e.CreatedAt))
+                    _mapper.Map<List<BoardElementViewModel>>(board.Elements.OrderByDescending(e => e.ElementNumber))
                 );
             }
 
