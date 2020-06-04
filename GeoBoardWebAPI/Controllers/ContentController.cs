@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GeoBoardWebAPI.DAL.Repositories;
@@ -33,18 +34,9 @@ namespace GeoBoardWebAPI.Controllers
         [HttpGet("{imageId}")]
         public async Task<IActionResult> Index([FromRoute] Guid imageId)
         {
-            //var userId = GetUserId().ToString();
-            //var boardId = ConnectionMapping.GetUserBoard(userId);
+            string path = Configuration.GetSection("ImageStoragePath").Value + "/" + imageId + ".jpg";
+            FileStream image = System.IO.File.OpenRead(path);
 
-            //if (boardId == null) return NotFound();
-
-            //if(Guid.Parse(boardId) != BoardElementRepository.GetAll().Where(x => x.ImageId == imageId).FirstOrDefault().BoardId)
-            //{
-            //    return NotFound();
-            //}
-
-            var path = Configuration.GetSection("ImageStoragePath").Value + "/" + imageId + ".jpg";
-            var image = System.IO.File.OpenRead(path);
             return File(image, "image/jpeg");
         }
     }
