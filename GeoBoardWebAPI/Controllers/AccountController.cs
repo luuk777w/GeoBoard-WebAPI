@@ -127,8 +127,6 @@ namespace GeoBoardWebAPI.Controllers
             return BadRequest(_localizer["Your account has not yet been activated"]);
         }
 
-        
-
         [AllowAnonymous]
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
@@ -371,10 +369,8 @@ namespace GeoBoardWebAPI.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
             };
 
             var userClaims = await _appUserManager.GetClaimsAsync(user);
@@ -406,8 +402,6 @@ namespace GeoBoardWebAPI.Controllers
             var allowedClaimTypes = new List<string>()
             {
                 ClaimTypes.Name,
-                ClaimTypes.Email,
-                ClaimTypes.NameIdentifier,
                 ClaimTypes.Country,
                 JwtRegisteredClaimNames.Email,
                 JwtRegisteredClaimNames.NameId,
@@ -515,7 +509,7 @@ namespace GeoBoardWebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await _appUserManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+            var user = await _appUserManager.FindByEmailAsync(User.FindFirstValue(JwtRegisteredClaimNames.Email));
 
             var changePasswordResult = await _appUserManager.ChangePasswordAsync(user, model.CurrentPassword, model.Password);
 

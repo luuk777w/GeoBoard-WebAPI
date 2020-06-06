@@ -27,6 +27,7 @@ using GeoBoardWebAPI.Responses;
 using GeoBoardWebAPI.Util;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -249,7 +250,7 @@ namespace GeoBoardWebAPI.Controllers
         {
             if (null != User && null != User.Identity && User.Identity.IsAuthenticated)
             {
-                return new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return new Guid(User.FindFirstValue(JwtRegisteredClaimNames.NameId));
             }
 
             return null;

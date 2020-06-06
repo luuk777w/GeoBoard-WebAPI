@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -55,8 +56,11 @@ namespace GeoBoardWebAPI.Hubs
         {
             string userId = GetUserId().ToString();
 
-            // Remove the user from its assigned board (if any).
-            await LeaveBoard(this.ConnectionMapping.GetUserBoard(userId));
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Remove the user from its assigned board (if any).
+                await LeaveBoard(this.ConnectionMapping.GetUserBoard(userId));
+            }
 
             await base.OnDisconnectedAsync(exception);
         }
@@ -139,7 +143,7 @@ namespace GeoBoardWebAPI.Hubs
 
         private Guid? GetUserId()
         {
-            return new Guid(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return new Guid(Context.User.FindFirstValue(JwtRegisteredClaimNames.NameId));
         }
     }
 }
