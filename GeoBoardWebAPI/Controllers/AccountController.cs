@@ -373,23 +373,23 @@ namespace GeoBoardWebAPI.Controllers
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
             };
 
-            var userClaims = await _appUserManager.GetClaimsAsync(user);
+            //var userClaims = await _appUserManager.GetClaimsAsync(user);
             var userRoles = await _appUserManager.GetRolesAsync(user);
 
-            claims.AddRange(userClaims);
+            //claims.AddRange(userClaims);
 
             foreach (var userRole in userRoles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, userRole));
-                var role = await _roleManager.FindByNameAsync(userRole);
-                if (role != null)
-                {
-                    var roleClaims = await _roleManager.GetClaimsAsync(role);
-                    foreach (Claim roleClaim in roleClaims)
-                    {
-                        claims.Add(roleClaim);
-                    }
-                }
+                //var role = await _roleManager.FindByNameAsync(userRole);
+                //if (role != null)
+                //{
+                //    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                //    foreach (Claim roleClaim in roleClaims)
+                //    {
+                //        claims.Add(roleClaim);
+                //    }
+                //}
             }
 
             return claims;
@@ -406,7 +406,7 @@ namespace GeoBoardWebAPI.Controllers
                 JwtRegisteredClaimNames.Email,
                 JwtRegisteredClaimNames.NameId,
                 ClaimTypes.Role,
-                AppClaimTypes.Permission,
+                //AppClaimTypes.Permission,
             };
 
             var user = await _userRepository.GetAll()
