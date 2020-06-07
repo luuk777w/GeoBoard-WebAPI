@@ -27,6 +27,7 @@ using Hangfire.SqlServer;
 using Microsoft.OpenApi.Models;
 using System.IO;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace GeoBoardWebAPI
 {
@@ -144,7 +145,10 @@ namespace GeoBoardWebAPI
             services.AddAutoMapper(typeof(Startup));
 
             // Add SignalR.
-            services.AddSignalR();
+            services.AddSignalR()
+                .AddNewtonsoftJsonProtocol(options =>
+                    options.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                );
 
             // Add and configure Hangfire.
             services.AddHangfire(configuration => configuration
@@ -182,7 +186,10 @@ namespace GeoBoardWebAPI
             });
 
             // Enable controllers and views.
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
