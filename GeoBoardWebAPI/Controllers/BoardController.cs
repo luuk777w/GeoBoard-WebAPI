@@ -177,7 +177,7 @@ namespace GeoBoardWebAPI.Controllers
         {
             var board = await BoardRepository.GetAll().AsNoTracking().SingleOrDefaultAsync(b => b.Id.Equals(boardId));
             if (board == null)
-                return NotFound($"No board with ID {boardId} found.");
+                return BadRequest($"No board with ID {boardId} found.");
 
             BoardRepository.Remove(board);
             await BoardRepository.SaveChangesAsync();
@@ -186,7 +186,7 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("{boardId}/add-user")]
+        [HttpPost("{boardId}/users")]
         public async Task<IActionResult> AddUser([FromRoute] Guid boardId, [FromBody] AddBoardUserMutateModel model)
         {
             var board = await BoardRepository
@@ -229,6 +229,34 @@ namespace GeoBoardWebAPI.Controllers
 
             return Ok(
                 _mapper.Map<List<BoardUserViewModel>>(board.Users)    
+            );
+        }
+
+        [Authorize]
+        [HttpDelete("{boardId}/users/{userId}")]
+        public async Task<IActionResult> RemoveUser([FromRoute] Guid boardId, [FromRoute] Guid userId)
+        {
+            var board = await BoardRepository
+                .GetAll()
+                .Include(b => b.Users)
+                    .ThenInclude(ub => ub.User)
+                .SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+            if (board == null)
+                return BadRequest($"No board with ID {boardId} found.");
+
+            var user = board.Users
+                .Where(bu => bu.BoardId.Equals(boardId))
+                .Where(bu => bu.UserId.Equals(userId))
+                .FirstOrDefault();
+
+            if (user == null)
+                return BadRequest($"User not found");
+
+            board.Users.Remove(user);
+            await BoardRepository.SaveChangesAsync();
+
+            return Ok(
+                _mapper.Map<List<BoardUserViewModel>>(board.Users)
             );
         }
 
