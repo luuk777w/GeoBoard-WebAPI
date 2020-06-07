@@ -1,4 +1,5 @@
-﻿using GeoBoardWebAPI.Models.Account;
+﻿using GeoBoardWebAPI.DAL.Entities;
+using GeoBoardWebAPI.Models.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,6 @@ namespace GeoBoardWebAPI.Models.Board
         /// <summary>
         /// The collection of users who are part of this board.
         /// </summary>
-        //public ICollection<UserBoard> Users { get; set; }
+        public ICollection<BoardUserViewModel> Users { get; set; }
     }
 }

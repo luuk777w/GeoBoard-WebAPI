@@ -204,4 +204,7 @@
   <data name="Users" xml:space="preserve">
     <value>Gebruikers</value>
   </data>
+  <data name="You have been added to the '{0}' board" xml:space="preserve">
+    <value>Je bent toegevoegd aan het bord '{0}'</value>
+  </data>
 </root>

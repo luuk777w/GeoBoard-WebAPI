@@ -195,5 +195,10 @@ namespace GeoBoardWebAPI.DAL.Repositories
         {
             return Context.Set<T>().Attach(entity);
         }
+
+        public ApplicationDbContext GetContext()
+        {
+            return Context;
+        }
     }
 }

@@ -257,6 +257,17 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [NonAction]
+        public string GetUsername()
+        {
+            if (null != User && null != User.Identity && User.Identity.IsAuthenticated)
+            {
+                return User.FindFirstValue(ClaimTypes.Name);
+            }
+
+            return null;
+        }
+
+        [NonAction]
         public Dictionary<PropertyInfo, string> GetAllAttributedProps(Type currType, Type attribute, List<Type> recursionPrevention = null)
         {
             if (recursionPrevention == null) recursionPrevention = new List<Type>();
