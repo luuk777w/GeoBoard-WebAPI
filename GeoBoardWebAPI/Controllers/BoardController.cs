@@ -172,6 +172,25 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [Authorize]
+        [HttpPut("{boardId}")]
+        public async Task<IActionResult> EditBoard([FromRoute] Guid boardId, [FromBody] EditBoardMutateModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var board = await BoardRepository.GetAll().SingleOrDefaultAsync(b => b.Id.Equals(boardId));
+            if (board == null)
+                return NotFound($"No board with ID {boardId} found.");
+
+            board.Name = model.Name.Trim();
+            await BoardRepository.SaveChangesAsync();
+
+            return Ok(
+                _mapper.Map<BoardViewModel>(board)    
+            );
+        }
+
+        [Authorize]
         [HttpDelete("{boardId}")]
         public async Task<IActionResult> RemoveBoard([FromRoute] Guid boardId)
         {
