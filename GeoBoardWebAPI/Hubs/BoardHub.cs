@@ -81,6 +81,7 @@ namespace GeoBoardWebAPI.Hubs
             if (boardIdToSwitchFrom.Equals(boardIdToSwitchTo))
             {
                 await LeaveBoard(boardIdToSwitchTo.ToString());
+                await Clients.Caller.SendAsync("SwitchedBoard", null);
 
                 return null;
             }
