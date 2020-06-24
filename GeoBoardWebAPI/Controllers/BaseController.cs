@@ -243,6 +243,14 @@ namespace GeoBoardWebAPI.Controllers
             return BadRequest(response);
         }
 
+        [NonAction]
+        protected ObjectResult Problem(string error, int statusCode = 500)
+        {
+            var response = new HttpResponseModel(statusCode, error);
+
+            return StatusCode(statusCode, response);
+        }
+
         #endregion
 
         [NonAction]
