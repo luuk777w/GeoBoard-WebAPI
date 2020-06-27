@@ -33,8 +33,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Build, Tag, Push
-      uses: mattdavis0351/actions/docker-gpr@v1.3.0
+      uses: machine-learning-apps/gpr-docker-publish@v1.3
+      id: docker
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        image-name: geoboard-webapi
-        dockerfile-location: .
+        IMAGE_NAME: 'geoboard-webapi'
+        TAG: 'latest'
+        DOCKERFILE_PATH: 'Dockerfile'
+        BUILD_CONTEXT: '/'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
