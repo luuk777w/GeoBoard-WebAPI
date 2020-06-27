@@ -33,7 +33,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Docker Package Registry
-        uses: craftech-io/package-action@v3.1.0
+      uses: craftech-io/package-action@v3.1.0
       with:
         tags: latest
         access_token: ${{ secrets.GITHUB_TOKEN }}
