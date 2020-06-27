@@ -14,8 +14,8 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /GeoBoardWebAPI
 
-ENV ASPNETCORE_ENVIRONMENT = Production
-ENV ASPNETCORE_URLS = http://localhost:5000
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://localhost:5000
 
 EXPOSE 5000
 COPY --from=build-env /GeoBoardWebAPI/out .
