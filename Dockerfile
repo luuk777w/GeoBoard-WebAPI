@@ -11,7 +11,7 @@ COPY . .
 RUN dotnet publish -c Release -o out
 
 ENV ASPNETCORE_ENVIRONMENT = Production
-ENV ASPNETCORE_URLS = http://*:5000
+ENV ASPNETCORE_URLS = http://+:5000
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
