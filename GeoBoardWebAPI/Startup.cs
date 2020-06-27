@@ -137,7 +137,7 @@ namespace GeoBoardWebAPI
                 builder
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowCredentials()
+                    //.AllowCredentials()
                     .AllowAnyOrigin();
                     //.WithOrigins(new[] { "http://localhost", "http://localhost:8888", "https://geoboard.app", "http://localhost:5001" });
             }));
