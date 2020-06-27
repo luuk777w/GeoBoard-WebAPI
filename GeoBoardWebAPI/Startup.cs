@@ -138,7 +138,8 @@ namespace GeoBoardWebAPI
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials()
-                    .WithOrigins(new[] { "http://localhost", "http://localhost:8888", "https://geoboard.app", "http://localhost:5001" });
+                    .AllowAnyOrigin();
+                    //.WithOrigins(new[] { "http://localhost", "http://localhost:8888", "https://geoboard.app", "http://localhost:5001" });
             }));
 
             // Setup AutoMapper
