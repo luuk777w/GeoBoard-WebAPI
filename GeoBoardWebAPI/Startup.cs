@@ -135,7 +135,7 @@ namespace GeoBoardWebAPI
             services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
             {
                 builder
-                    .WithOrigins(new[] { "http://localhost", "http://localhost:8888", "https://geoboard.app", "http://0.0.0.0:5001" })
+                    .WithOrigins(new[] { "http://localhost", "http://localhost:8888", "https://geoboard.app" })
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
