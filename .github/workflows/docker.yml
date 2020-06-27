@@ -38,4 +38,4 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         dockerfile-location: .
         image-name: geoboard-webapi
-      
+        tag: latest
