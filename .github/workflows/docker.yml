@@ -33,7 +33,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Build, Tag, Push
-      uses: mattdavis0351/actions/docker-gpr@v1.3.0
+      uses: mattdavis0351/actions/docker-gpr@v1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         image-name: geoboard-webapi
