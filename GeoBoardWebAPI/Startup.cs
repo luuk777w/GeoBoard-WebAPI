@@ -85,6 +85,17 @@ namespace GeoBoardWebAPI
                 options.SignIn.RequireConfirmedEmail = false;
             });
 
+            var tokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidIssuer = Configuration["JwtSettings:Issuer"],
+                ValidAudience = Configuration["JwtSettings:Issuer"],
+                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(Configuration["JwtSettings:Key"])),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            services.AddSingleton<TokenValidationParameters>(tokenValidationParameters);
+
             // Configure JWT authentication.
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             services.AddAuthentication(options =>
@@ -97,15 +108,7 @@ namespace GeoBoardWebAPI
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
-
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidIssuer = Configuration["JwtSettings:Issuer"],
-                    ValidAudience = Configuration["JwtSettings:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(Configuration["JwtSettings:Key"])),
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
+                options.TokenValidationParameters = tokenValidationParameters;
 
                 // We have to hook the OnMessageReceived event in order to
                 // allow the JWT authentication handler to read the access

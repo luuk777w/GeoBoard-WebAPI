@@ -18,6 +18,8 @@ namespace GeoBoardWebAPI.DAL
         public DbSet<UserBoard> UserBoards { get; set; }
         public DbSet<UserSetting> UserSettings { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

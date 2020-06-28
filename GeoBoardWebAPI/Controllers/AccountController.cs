@@ -23,6 +23,7 @@ using System.Web;
 using GeoBoardWebAPI.Responses;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+using GeoBoardWebAPI.DAL;
 
 namespace GeoBoardWebAPI.Controllers
 {
@@ -37,6 +38,8 @@ namespace GeoBoardWebAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly IBackgroundJobClient _backgroundJobs;
         private readonly UserRepository _userRepository;
+        private readonly ApplicationDbContext _applicationDbContext;
+        private readonly TokenValidationParameters _tokenValidationParameters;
 
         public AccountController(
             AppUserManager appUserManager,
@@ -44,7 +47,9 @@ namespace GeoBoardWebAPI.Controllers
             SignInManager<User> signInManager,
             IEmailService emailService,
             ILogger<AccountController> logger,
+            ApplicationDbContext applicationDbContext,
             UserRepository userRepository,
+            TokenValidationParameters tokenValidationParameters,
             IConfiguration config,
             IServiceProvider services,
             IBackgroundJobClient backgroundJobs )
@@ -54,7 +59,9 @@ namespace GeoBoardWebAPI.Controllers
             _roleManager = roleManager;
             _signInManager = signInManager;
             _logger = logger;
+            _applicationDbContext = applicationDbContext;
             _configuration = config;
+            _tokenValidationParameters = tokenValidationParameters;
             _emailService = emailService;
             _userRepository = userRepository;
             _backgroundJobs = backgroundJobs;
@@ -91,21 +98,7 @@ namespace GeoBoardWebAPI.Controllers
                 var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, true);
                 if (result.Succeeded)
                 {
-                    var claims = await GetValidClaims(user);
-
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
-                    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-                    var token = new JwtSecurityToken(_configuration["JwtSettings:Issuer"],
-                        _configuration["JwtSettings:Issuer"],
-                        claims,
-                        expires: model.RememberMe ? DateTime.Now.AddDays(14) : DateTime.Now.AddHours(10),
-                        signingCredentials: creds);
-
-                    _logger.LogInformation($"User '{user.Email}' ({user.Email}) has logged in.");
-
-                    // Return the JWT token
-                    return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
+                    return Ok(await GenerateAuthenticationResult(user));
                 }
 
                 // Determine the error message based on what went wrong
@@ -293,38 +286,131 @@ namespace GeoBoardWebAPI.Controllers
             return BadRequest(result.Errors);
         }
 
-        [HttpPost("RenewToken")]
-        public async Task<IActionResult> RenewToken([FromBody] RenewTokenViewModel model)
+        [Authorize]
+        [HttpPost("Refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenViewModel model)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var user = await _appUserManager.FindByEmailAsync(model.Email);
-            if (user == null) return BadRequest(_localizer["AccountEmailUnknown"]);
-            if (user.IsLocked == false) return BadRequest(_localizer["AccountIsLocked"]);
-
-            if ((model.CreationDate - DateTime.Now).TotalDays > 1)
+            var validatedToken = GetPrincipalFromToken(model.Token);
+            if (validatedToken == null)
             {
-                if (await _appUserManager.IsEmailConfirmedAsync(user))
-                {
-                    var claims = new[]
-                    {
-                        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    };
-
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
-                    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-                    var token = new JwtSecurityToken(_configuration["JwtSettings:Issuer"],
-                        _configuration["JwtSettings:Issuer"],
-                        claims,
-                        expires: DateTime.Now.AddDays(1),
-                        signingCredentials: creds);
-
-                    return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-                }
+                return BadRequest("Invalid token");
             }
 
-            return NoContent();
+            var expiryDateUnix = long.Parse(validatedToken.Claims.Single(t => t.Type.Equals(JwtRegisteredClaimNames.Exp)).Value);
+
+            DateTime expiryDateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+                .AddSeconds(expiryDateUnix)
+                .ToLocalTime();
+
+            if (expiryDateTime > DateTime.Now)
+            {
+                return BadRequest("This token hasn't been expired yet");
+            }
+
+            var jti = validatedToken.Claims.Single(t => t.Type == JwtRegisteredClaimNames.Jti).Value;
+
+            // TODO: Repository for RefreshTokens?
+            var storedRefreshToken = await _applicationDbContext.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token.Equals(model.RefreshToken));
+
+            // TODO: Mask the bad request messages to prevent potential hacks!
+            if (storedRefreshToken == null)
+            {
+                return BadRequest("This refresh token does not exist");
+            }
+
+            if (DateTime.Now > storedRefreshToken.ExpiryDate)
+            {
+                return BadRequest("This refresh token has expired");
+            }
+
+            if (storedRefreshToken.Invalidated)
+            {
+                return BadRequest("This refresh token has been invalidated");
+            }
+
+            if (storedRefreshToken.Used)
+            {
+                return BadRequest("This refresh token has been used");
+            }
+
+            if (! storedRefreshToken.JwtId.Equals(jti))
+            {
+                return BadRequest("This refresh token does not match this JWT");
+            }
+
+            storedRefreshToken.Used = true;
+            _applicationDbContext.RefreshTokens.Update(storedRefreshToken);
+            await _applicationDbContext.SaveChangesAsync();
+
+            var user = await _appUserManager.FindByIdAsync(validatedToken.Claims.Single(t => t.Type.Equals(JwtRegisteredClaimNames.NameId)).Value);
+            return Ok(
+                await GenerateAuthenticationResult(user)
+            );
+        }
+
+        [NonAction]
+        private ClaimsPrincipal GetPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var principle = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+                if (!IsJwtWithValidateSecurityAlgorithm(validatedToken))
+                    return null;
+
+                return principle;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        [NonAction]
+        private bool IsJwtWithValidateSecurityAlgorithm(SecurityToken validatedToken)
+        {
+            return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
+                jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        [NonAction]
+        private async Task<AuthenticationResultViewModel> GenerateAuthenticationResult(User user)
+        {
+            var claims = await GetValidClaims(user);
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(_configuration["JwtSettings:Issuer"],
+                _configuration["JwtSettings:Issuer"],
+                claims,
+                // TODO: Implement RememberMe
+                expires: DateTime.Now.Add(TimeSpan.Parse(_configuration["JwtSettings:TokenLifetime"].ToString())),
+                signingCredentials: creds);
+
+            var seconds = double.Parse(_configuration["JwtSettings:RefreshTokenLifetime"].ToString());
+            var config = _configuration["JwtSettings:RefreshTokenLifetime"];
+
+            var refreshToken = new RefreshToken
+            {
+                JwtId = token.Id,
+                UserId = user.Id,
+                CreationDate = DateTime.Now,
+                ExpiryDate = DateTime.Now.AddSeconds(
+                    double.Parse(_configuration["JwtSettings:RefreshTokenLifetime"].ToString())
+                )
+            };
+
+            await _applicationDbContext.RefreshTokens.AddAsync(refreshToken);
+            await _applicationDbContext.SaveChangesAsync();
+
+            // Return the JWT token
+            return new AuthenticationResultViewModel
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = refreshToken.Token
+            };
         }
 
         [HttpGet("Lockout")]
