@@ -93,11 +93,11 @@ namespace GeoBoardWebAPI.Controllers
                 {
                     var claims = await GetValidClaims(user);
 
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
                     var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                    var token = new JwtSecurityToken(_configuration["Tokens:Issuer"],
-                        _configuration["Tokens:Issuer"],
+                    var token = new JwtSecurityToken(_configuration["JwtSettings:Issuer"],
+                        _configuration["JwtSettings:Issuer"],
                         claims,
                         expires: model.RememberMe ? DateTime.Now.AddDays(14) : DateTime.Now.AddHours(10),
                         signingCredentials: creds);
@@ -311,11 +311,11 @@ namespace GeoBoardWebAPI.Controllers
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     };
 
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
                     var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                    var token = new JwtSecurityToken(_configuration["Tokens:Issuer"],
-                        _configuration["Tokens:Issuer"],
+                    var token = new JwtSecurityToken(_configuration["JwtSettings:Issuer"],
+                        _configuration["JwtSettings:Issuer"],
                         claims,
                         expires: DateTime.Now.AddDays(1),
                         signingCredentials: creds);
