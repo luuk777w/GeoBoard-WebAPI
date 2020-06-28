@@ -38,6 +38,31 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [Authorize]
+        [HttpPost("uploadImage")]
+        public async Task<IActionResult> UploadImage([FromBody] CreateBoardElementViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = GetUserId().ToString();
+            var boardId = ConnectionMapping.GetUserBoard(userId);
+            var ImageId = Guid.NewGuid();
+
+            string filePath = Configuration.GetSection("ImageStoragePath").Value + "/" + ImageId + ".jpg";
+            await System.IO.File.WriteAllBytesAsync(filePath, Convert.FromBase64String(model.Image));
+
+            var boardElement = await BoardElementRepository.GetAll().Where(x => x.Id == model.BoardElementId).FirstOrDefaultAsync();
+            boardElement.ImageId = ImageId;
+
+            BoardElementRepository.Update(boardElement);
+            await BoardElementRepository.SaveChangesAsync();
+
+            await _hubContext.Clients.Group(boardId).SendAsync("ReceiveImage", boardElement);
+
+            return Ok();
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateBoardElement([FromBody] CreateBoardElementViewModel model)
         {
@@ -48,11 +73,6 @@ namespace GeoBoardWebAPI.Controllers
             var boardId = ConnectionMapping.GetUserBoard(userId);
 
             if (boardId == null) return BadRequest();
-
-            var ImageId = Guid.NewGuid();
-
-            string filePath = Configuration.GetSection("ImageStoragePath").Value + "/" + ImageId + ".jpg";
-            await System.IO.File.WriteAllBytesAsync(filePath, Convert.FromBase64String(model.Image));
 
             var number = 1;
 
@@ -71,7 +91,6 @@ namespace GeoBoardWebAPI.Controllers
                 Id = boardElementId,
                 BoardId = Guid.Parse(boardId),
                 ElementNumber = number,
-                ImageId = ImageId,
                 Note = model.Note,
                 UserId = GetUserId(),
                 CreatedAt = DateTimeOffset.Now

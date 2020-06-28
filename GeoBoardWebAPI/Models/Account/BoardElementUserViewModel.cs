@@ -15,6 +15,6 @@ namespace GeoBoardWebAPI.Models.Account
         /// <summary>
         /// The user's username
         /// </summary>
-        public string Username { get; set; }
+        public string UserName { get; set; }
     }
 }

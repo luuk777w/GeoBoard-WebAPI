@@ -8,6 +8,8 @@ namespace GeoBoardWebAPI.Models.Board
 {
     public class CreateBoardElementViewModel
     {
+        public Guid BoardElementId { get; set; }
+
         public string Note { get; set; }
 
         public string Image { get; set; }

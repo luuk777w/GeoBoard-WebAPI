@@ -93,6 +93,9 @@ namespace GeoBoardWebAPI.Hubs
                     .ThenInclude(e => e.User)
                 .FirstOrDefaultAsync(b => b.Id.Equals(boardIdToSwitchTo));
 
+
+            boardToSwitchTo.Elements = boardToSwitchTo.Elements.OrderByDescending(e => e.ElementNumber).ToList();
+
             if (boardToSwitchTo == null || ! user.HasPermissionToSwitchBoard(boardToSwitchTo, _userManager)) 
             {
                 await Clients.Caller.SendAsync("BoardNotFound", boardIdToSwitchTo);
