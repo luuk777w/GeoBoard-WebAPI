@@ -286,7 +286,7 @@ namespace GeoBoardWebAPI.Controllers
             return BadRequest(result.Errors);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost("Refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenViewModel model)
         {
@@ -355,11 +355,15 @@ namespace GeoBoardWebAPI.Controllers
 
             try
             {
-                var principle = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+                var tokenValidationParameters = _tokenValidationParameters.Clone();
+                tokenValidationParameters.ValidateLifetime = false;
+
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
+
                 if (!IsJwtWithValidateSecurityAlgorithm(validatedToken))
                     return null;
 
-                return principle;
+                return principal;
             }
             catch
             {
@@ -379,7 +383,7 @@ namespace GeoBoardWebAPI.Controllers
         {
             var claims = await GetValidClaims(user);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(_configuration["JwtSettings:Issuer"],

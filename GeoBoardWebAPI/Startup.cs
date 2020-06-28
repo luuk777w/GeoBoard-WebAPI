@@ -89,8 +89,12 @@ namespace GeoBoardWebAPI
             {
                 ValidIssuer = Configuration["JwtSettings:Issuer"],
                 ValidAudience = Configuration["JwtSettings:Issuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(Configuration["JwtSettings:Key"])),
+                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(Configuration["JwtSettings:Secret"])),
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
                 ValidateLifetime = true,
+                ValidateAudience = false,
+                RequireExpirationTime = false,
                 ClockSkew = TimeSpan.Zero
             };
 
