@@ -328,18 +328,13 @@ namespace GeoBoardWebAPI.Controllers
                 return BadRequest("This refresh token has been invalidated");
             }
 
-            if (storedRefreshToken.Used)
-            {
-                return BadRequest("This refresh token has been used");
-            }
-
             if (! storedRefreshToken.JwtId.Equals(jti))
             {
                 return BadRequest("This refresh token does not match this JWT");
             }
 
-            storedRefreshToken.Used = true;
-            _applicationDbContext.RefreshTokens.Update(storedRefreshToken);
+            _applicationDbContext.RefreshTokens.Remove(storedRefreshToken);
+
             await _applicationDbContext.SaveChangesAsync();
 
             var user = await _appUserManager.FindByIdAsync(validatedToken.Claims.Single(t => t.Type.Equals(JwtRegisteredClaimNames.NameId)).Value);

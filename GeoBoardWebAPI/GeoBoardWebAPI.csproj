@@ -20,6 +20,10 @@
     <Compile Remove="DAL\Migrations\20200426150949_Init.Designer.cs" />
     <Compile Remove="Migrations\20200628141226_CreateRefreshTokensTable.cs" />
     <Compile Remove="Migrations\20200628141226_CreateRefreshTokensTable.Designer.cs" />
+    <Compile Remove="Migrations\20200628141828_CreateRefreshTokensTable.cs" />
+    <Compile Remove="Migrations\20200628141828_CreateRefreshTokensTable.Designer.cs" />
+    <Compile Remove="Migrations\20200629094131_UpdateRefreshTokensTable.cs" />
+    <Compile Remove="Migrations\20200629094131_UpdateRefreshTokensTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

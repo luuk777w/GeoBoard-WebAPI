@@ -11,11 +11,10 @@ namespace GeoBoardWebAPI.Migrations
                 name: "RefreshTokens",
                 columns: table => new
                 {
-                    Token = table.Column<string>(nullable: false),
+                    Token = table.Column<Guid>(nullable: false),
                     JwtId = table.Column<string>(nullable: true),
                     CreationDate = table.Column<DateTime>(nullable: false),
                     ExpiryDate = table.Column<DateTime>(nullable: false),
-                    Used = table.Column<bool>(nullable: false),
                     Invalidated = table.Column<bool>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false)
                 },

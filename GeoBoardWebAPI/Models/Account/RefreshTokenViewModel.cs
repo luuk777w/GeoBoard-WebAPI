@@ -10,6 +10,6 @@ namespace GeoBoardWebAPI.Models
         public string Token { get; set; }
 
         [Required]
-        public string RefreshToken { get; set; }
+        public Guid RefreshToken { get; set; }
     }
 }
