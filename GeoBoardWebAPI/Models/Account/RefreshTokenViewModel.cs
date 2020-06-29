@@ -7,7 +7,7 @@ namespace GeoBoardWebAPI.Models
     public class RefreshTokenViewModel
     {
         [Required]
-        public string Token { get; set; }
+        public string AccessToken { get; set; }
 
         [Required]
         public Guid RefreshToken { get; set; }

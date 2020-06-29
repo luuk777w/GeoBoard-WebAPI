@@ -7,7 +7,7 @@ namespace GeoBoardWebAPI.Models.Account
 {
     public class AuthenticationResultViewModel
     {
-        public string Token { get; set; }
+        public string AccessToken { get; set; }
 
         public Guid RefreshToken { get; set; }
     }

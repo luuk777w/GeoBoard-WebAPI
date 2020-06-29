@@ -290,7 +290,7 @@ namespace GeoBoardWebAPI.Controllers
         [HttpPost("Refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenViewModel model)
         {
-            var validatedToken = GetPrincipalFromToken(model.Token);
+            var validatedToken = GetPrincipalFromToken(model.AccessToken);
             if (validatedToken == null)
             {
                 return BadRequest("Invalid token");
@@ -407,7 +407,7 @@ namespace GeoBoardWebAPI.Controllers
             // Return the JWT token
             return new AuthenticationResultViewModel
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 RefreshToken = refreshToken.Token
             };
         }
