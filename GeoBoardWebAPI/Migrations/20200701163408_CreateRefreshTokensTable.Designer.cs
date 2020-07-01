@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GeoBoardWebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200629094243_CreateRefreshTokensTable")]
+    [Migration("20200701163408_CreateRefreshTokensTable")]
     partial class CreateRefreshTokensTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -153,14 +153,11 @@ namespace GeoBoardWebAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreationDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("Invalidated")
-                        .HasColumnType("bit");
 
                     b.Property<string>("JwtId")
                         .HasColumnType("nvarchar(max)");

@@ -118,9 +118,9 @@ namespace GeoBoardWebAPI.Hubs
             await Clients.Group(boardId).SendAsync("UserJoinedBoard", new
             {
                 UserId = GetUserId(),
-                Username = Context.User.Identity.Name,
+                UserName = Context.User.Identity.Name,
                 BoardId = boardId,
-                JoinedUsers = ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.Username)
+                JoinedUsers = ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.UserName)
             });
         }
 
@@ -139,9 +139,9 @@ namespace GeoBoardWebAPI.Hubs
             await Clients.OthersInGroup(boardId).SendAsync("UserLeftBoard", new
             {
                 UserId = GetUserId(),
-                Username = Context.User.Identity.Name,
+                UserName = Context.User.Identity.Name,
                 BoardId = boardId,
-                JoinedUsers = ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.Username)
+                JoinedUsers = ConnectionMapping.GetJoinedBoardUsers(boardId).OrderBy(bu => bu.UserName)
             });
         }
 

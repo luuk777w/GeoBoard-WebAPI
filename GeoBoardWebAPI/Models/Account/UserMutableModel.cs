@@ -9,7 +9,7 @@ namespace GeoBoardWebAPI.Models.Account
         public string Id { get; set; }
 
         [AppRequired]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [AppRequired]
         [EmailAddress]

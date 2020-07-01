@@ -6,7 +6,7 @@ namespace GeoBoardWebAPI.Models
     public class ResetPasswordViewModel
     {
         [AppRequired]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [DataType(DataType.Url)]
         public string ReturnUrl { get; set; }

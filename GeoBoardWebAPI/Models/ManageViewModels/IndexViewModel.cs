@@ -8,7 +8,7 @@ namespace GeoBoardWebAPI.Models.ManageViewModels
 {
     public class IndexViewModel
     {
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         public bool IsEmailConfirmed { get; set; }
 

@@ -16,7 +16,7 @@ namespace GeoBoardWebAPI.Models.Account
         /// <summary>
         /// The user's username.
         /// </summary>
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         /// <summary>
         /// The creation date and time of when the user joined the board.

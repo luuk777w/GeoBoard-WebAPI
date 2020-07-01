@@ -19,7 +19,7 @@ namespace GeoBoardWebAPI.Models.Account
         /// </summary>
         [AppRequired]
         [Orderable, Searchable]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         /// <summary>
         /// The user's email address used to login.

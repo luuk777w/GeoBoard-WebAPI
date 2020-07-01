@@ -15,11 +15,9 @@ namespace GeoBoardWebAPI.DAL.Entities
 
         public string JwtId { get; set; }
 
-        public DateTime CreationDate { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public DateTime ExpiryDate { get; set; }
-
-        public bool Invalidated { get; set; }
 
         public Guid UserId { get; set; }
 

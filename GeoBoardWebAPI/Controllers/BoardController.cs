@@ -216,14 +216,14 @@ namespace GeoBoardWebAPI.Controllers
             if (board == null)
                 return NotFound($"No board with ID {boardId} found.");
 
-            var user = await appUserManager.FindByNameAsync(model.Username);
+            var user = await appUserManager.FindByNameAsync(model.UserName);
             if (user == null)
-                return BadRequest($"No user found with the name {model.Username}");
+                return BadRequest($"No user found with the name {model.UserName}");
 
             if (board.Users.Any(item => item.User.UserName.Equals(user.UserName)))
                 return BadRequest($"The given user is already part of this board");
 
-            if (model.Username.Equals(GetUsername()))
+            if (model.UserName.Equals(GetUsername()))
                 return BadRequest($"The given user is already part of this board");
 
             board.Users.Add(new UserBoard
@@ -238,7 +238,7 @@ namespace GeoBoardWebAPI.Controllers
             var emailModel = new UserAddedToBoardEmailViewModel
             {
                 AddedBy = GetUsername(),
-                Username = user.UserName,
+                UserName = user.UserName,
                 Email = user.Email,
                 BoardId = board.Id.ToString(),
                 BoardName = board.Name

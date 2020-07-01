@@ -12,6 +12,6 @@ namespace GeoBoardWebAPI.Models.Board
         /// The username to invite.
         /// </summary>
         [Required]
-        public string Username { get; set; }
+        public string UserName { get; set; }
     }
 }

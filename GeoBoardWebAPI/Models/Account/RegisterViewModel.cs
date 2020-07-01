@@ -15,7 +15,7 @@ namespace GeoBoardWebAPI.Models.Account
 
         [AppRequired]
         [DataType(DataType.Text)]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         public string Token { get; set; }
     }

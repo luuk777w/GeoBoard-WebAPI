@@ -24,6 +24,12 @@
     <Compile Remove="Migrations\20200628141828_CreateRefreshTokensTable.Designer.cs" />
     <Compile Remove="Migrations\20200629094131_UpdateRefreshTokensTable.cs" />
     <Compile Remove="Migrations\20200629094131_UpdateRefreshTokensTable.Designer.cs" />
+    <Compile Remove="Migrations\20200629094243_CreateRefreshTokensTable.cs" />
+    <Compile Remove="Migrations\20200629094243_CreateRefreshTokensTable.Designer.cs" />
+    <Compile Remove="Migrations\20200701162258_CreateRefreshTokensTable.cs" />
+    <Compile Remove="Migrations\20200701162258_CreateRefreshTokensTable.Designer.cs" />
+    <Compile Remove="Migrations\20200701162615_CreateRefreshTokensTable.cs" />
+    <Compile Remove="Migrations\20200701162615_CreateRefreshTokensTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

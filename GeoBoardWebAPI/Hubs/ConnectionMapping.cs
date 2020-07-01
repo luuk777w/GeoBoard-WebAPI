@@ -52,7 +52,7 @@ namespace GeoBoardWebAPI.Hubs
                 .Where(ub => ub.Value.Equals(boardId)).Select(ub => new BoardUserViewModel
                 {
                     Id = ub.Key,
-                    Username = this.Users[ub.Key]
+                    UserName = this.Users[ub.Key]
                 }
             );
         }

@@ -13,7 +13,7 @@ namespace GeoBoardWebAPI.Models.Board.Email
         public string Email { get; set; }
 
         [Required]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [Required]
         public string AddedBy { get; set; }

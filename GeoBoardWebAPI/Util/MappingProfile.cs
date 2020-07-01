@@ -29,7 +29,7 @@ namespace GeoBoardWebAPI.Util
 
             CreateMap<UserBoard, BoardUserViewModel>()
                 .ForMember(vm => vm.Id, c => c.MapFrom(ub => ub.User.Id))
-                .ForMember(vm => vm.Username, c => c.MapFrom(ub => ub.User.UserName));
+                .ForMember(vm => vm.UserName, c => c.MapFrom(ub => ub.User.UserName));
         }
     }
 }

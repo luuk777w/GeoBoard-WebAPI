@@ -80,11 +80,11 @@ namespace GeoBoardWebAPI.Controllers
                 return BadRequest(ModelState);
 
             // Search the user by username
-            var user = await _appUserManager.FindByEmailAsync(model.Username);
+            var user = await _appUserManager.FindByEmailAsync(model.UserName);
             if (user == null)
             {
                 // If the user was not found by email, search by name
-                user = await _appUserManager.FindByNameAsync(model.Username);
+                user = await _appUserManager.FindByNameAsync(model.UserName);
             }
 
             // No user found.
@@ -98,7 +98,7 @@ namespace GeoBoardWebAPI.Controllers
                 var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, true);
                 if (result.Succeeded)
                 {
-                    return Ok(await GenerateAuthenticationResult(user));
+                    return Ok(await GenerateAuthenticationResult(user, model.RememberMe));
                 }
 
                 // Determine the error message based on what went wrong
@@ -136,9 +136,9 @@ namespace GeoBoardWebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (await _appUserManager.FindByNameAsync(model.Username) != null)
+            if (await _appUserManager.FindByNameAsync(model.UserName) != null)
             {
-                ModelState.AddModelError(nameof(model.Username), "Username already in use");
+                ModelState.AddModelError(nameof(model.UserName), "UserName already in use");
 
                 return BadRequest(ModelState);
             }
@@ -148,7 +148,7 @@ namespace GeoBoardWebAPI.Controllers
             {
                 Email = model.Email,
                 CreatedAt = DateTime.UtcNow,
-                UserName = model.Username,
+                UserName = model.UserName,
                 EmailConfirmed = false
             };
 
@@ -163,12 +163,12 @@ namespace GeoBoardWebAPI.Controllers
             var emailModel = new ActivateAccountEmailViewModel
             {
                 Email = user.Email,
-                Username = user.UserName,
+                UserName = user.UserName,
                 Token = HttpUtility.UrlEncode(await _appUserManager.GenerateEmailConfirmationTokenAsync(user)),
                 ValidTill = DateTime.Now.AddHours(6)
             };
 
-            await _appUserManager.AddToRoleAsync(await _appUserManager.FindByNameAsync(model.Username), "User");
+            await _appUserManager.AddToRoleAsync(await _appUserManager.FindByNameAsync(model.UserName), "User");
 
             _backgroundJobs.Enqueue(() => SendActivateAccountEmail(emailModel));
 
@@ -194,7 +194,7 @@ namespace GeoBoardWebAPI.Controllers
             var emailModel = new ActivateAccountEmailViewModel
             {
                 Email = user.Email,
-                Username = user.UserName,
+                UserName = user.UserName,
                 Token = HttpUtility.UrlEncode(await _appUserManager.GenerateEmailConfirmationTokenAsync(user)),
                 ValidTill = DateTime.Now.AddHours(6)
             };
@@ -234,11 +234,11 @@ namespace GeoBoardWebAPI.Controllers
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var user = await _appUserManager.FindByEmailAsync(model.Username);
+            var user = await _appUserManager.FindByEmailAsync(model.UserName);
 
             if (user == null)
             {
-                user = await _appUserManager.FindByNameAsync(model.Username);
+                user = await _appUserManager.FindByNameAsync(model.UserName);
             }
 
             if (user == null) return BadRequest(_localizer["This account is unknown"]);
@@ -298,7 +298,7 @@ namespace GeoBoardWebAPI.Controllers
 
             var expiryDateUnix = long.Parse(validatedToken.Claims.Single(t => t.Type.Equals(JwtRegisteredClaimNames.Exp)).Value);
 
-            DateTime expiryDateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
+            DateTime expiryDateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local)
                 .AddSeconds(expiryDateUnix)
                 .ToLocalTime();
 
@@ -309,13 +309,13 @@ namespace GeoBoardWebAPI.Controllers
 
             var jti = validatedToken.Claims.Single(t => t.Type == JwtRegisteredClaimNames.Jti).Value;
 
-            // TODO: Repository for RefreshTokens?
             var storedRefreshToken = await _applicationDbContext.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token.Equals(model.RefreshToken));
 
-            // TODO: Mask the bad request messages to prevent potential hacks!
             if (storedRefreshToken == null)
             {
-                return BadRequest("This refresh token does not exist");
+                _logger.LogWarning($"The refresh token ({storedRefreshToken?.Token}) of user '{GetUserId()}' does not exist.");
+
+                return BadRequest("Something went wrong while refreshing the access token.");
             }
 
             if (DateTime.Now > storedRefreshToken.ExpiryDate)
@@ -323,23 +323,30 @@ namespace GeoBoardWebAPI.Controllers
                 return BadRequest("This refresh token has expired");
             }
 
-            if (storedRefreshToken.Invalidated)
-            {
-                return BadRequest("This refresh token has been invalidated");
-            }
-
             if (! storedRefreshToken.JwtId.Equals(jti))
             {
-                return BadRequest("This refresh token does not match this JWT");
+                _logger.LogWarning($"The refresh token ({storedRefreshToken.Token}) of user '{GetUserId()}' does not match this JWT ({jti}).");
+
+                return BadRequest("Something went wrong while refreshing the access token.");
             }
 
             _applicationDbContext.RefreshTokens.Remove(storedRefreshToken);
-
             await _applicationDbContext.SaveChangesAsync();
 
             var user = await _appUserManager.FindByIdAsync(validatedToken.Claims.Single(t => t.Type.Equals(JwtRegisteredClaimNames.NameId)).Value);
+
+            if (user == null)
+            {
+                _logger.LogWarning($"User '{validatedToken.Claims.Single(t => t.Type.Equals(JwtRegisteredClaimNames.NameId)).Value}' was not found while refreshing the access token.");
+
+                return BadRequest("Something went wrong while refreshing the access token.");
+            }
+
+            double rememberMeLifetime = double.Parse(_configuration["JwtSettings:RememberMeRefreshTokenLifetime"].ToString());
+            bool rememberMe = (storedRefreshToken.ExpiryDate.Subtract(storedRefreshToken.CreatedAt)).TotalSeconds.Equals(rememberMeLifetime);
+
             return Ok(
-                await GenerateAuthenticationResult(user)
+                await GenerateAuthenticationResult(user, rememberMe)
             );
         }
 
@@ -374,42 +381,60 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [NonAction]
-        private async Task<AuthenticationResultViewModel> GenerateAuthenticationResult(User user)
+        private async Task<AuthenticationResultViewModel> GenerateAuthenticationResult(User user, bool rememberMe = false)
         {
             var claims = await GetValidClaims(user);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Create a new JWT Access Token.
             var token = new JwtSecurityToken(_configuration["JwtSettings:Issuer"],
                 _configuration["JwtSettings:Issuer"],
                 claims,
-                // TODO: Implement RememberMe
                 expires: DateTime.Now.Add(TimeSpan.Parse(_configuration["JwtSettings:TokenLifetime"].ToString())),
                 signingCredentials: creds);
 
-            var seconds = double.Parse(_configuration["JwtSettings:RefreshTokenLifetime"].ToString());
-            var config = _configuration["JwtSettings:RefreshTokenLifetime"];
+            // Determine the lifetime depending on the rememberMe value.
+            double lifeTime = (rememberMe) ? double.Parse(_configuration["JwtSettings:RememberMeRefreshTokenLifetime"].ToString()) : double.Parse(_configuration["JwtSettings:RefreshTokenLifetime"].ToString());
 
+            // Store the current time to calculate the expiry date without extra seconds 
+            // caused by re-evaluating the current time and getting extra milliseconds.
+            var today = DateTime.Now;
+
+            // Create and store a new refresh token.
             var refreshToken = new RefreshToken
             {
                 JwtId = token.Id,
                 UserId = user.Id,
-                CreationDate = DateTime.Now,
-                ExpiryDate = DateTime.Now.AddSeconds(
-                    double.Parse(_configuration["JwtSettings:RefreshTokenLifetime"].ToString())
-                )
+                CreatedAt = today,
+                ExpiryDate = today.AddSeconds(lifeTime)
             };
 
             await _applicationDbContext.RefreshTokens.AddAsync(refreshToken);
             await _applicationDbContext.SaveChangesAsync();
 
-            // Return the JWT token
+            // Return fresh tokens.
             return new AuthenticationResultViewModel
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 RefreshToken = refreshToken.Token
             };
+        }
+
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout([FromBody] LogoutViewModel model)
+        {
+            var storedRefreshToken = await _applicationDbContext.RefreshTokens.SingleOrDefaultAsync(rt => rt.UserId.Equals(GetUserId()) && rt.JwtId.Equals(model.JwtId));
+
+            if (storedRefreshToken == null) {
+                return BadRequest("Something went wrong while logging out.");
+            }
+
+            _applicationDbContext.RefreshTokens.Remove(storedRefreshToken);
+            await _applicationDbContext.SaveChangesAsync();
+
+            return NoContent();
         }
 
         [HttpGet("Lockout")]

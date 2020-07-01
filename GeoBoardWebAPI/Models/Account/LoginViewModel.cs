@@ -6,7 +6,7 @@ namespace GeoBoardWebAPI.Models.Account
     public class LoginViewModel
     {
         [AppRequired]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [AppRequired]
         [DataType(DataType.Password)]

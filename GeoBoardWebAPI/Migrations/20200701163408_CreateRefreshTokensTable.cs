@@ -13,9 +13,8 @@ namespace GeoBoardWebAPI.Migrations
                 {
                     Token = table.Column<Guid>(nullable: false),
                     JwtId = table.Column<string>(nullable: true),
-                    CreationDate = table.Column<DateTime>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
                     ExpiryDate = table.Column<DateTime>(nullable: false),
-                    Invalidated = table.Column<bool>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
