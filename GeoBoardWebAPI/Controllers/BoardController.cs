@@ -27,6 +27,8 @@ namespace GeoBoardWebAPI.Controllers
     public class BoardController : BaseController
     {
         private readonly BoardRepository BoardRepository;
+        private readonly BoardElementRepository BoardElementRepository;
+
         private readonly AppUserManager appUserManager;
         private readonly IHubContext<BoardHub> _hubContext;
         private readonly ConnectionMapping ConnectionMapping;
@@ -37,6 +39,7 @@ namespace GeoBoardWebAPI.Controllers
         public BoardController(
             IServiceProvider scopeFactory,
             BoardRepository boardRepository,
+            BoardElementRepository boardElementRepository,
             AppUserManager appUserManager,
             IConfiguration configuration,
             IHubContext<BoardHub> hubContext,
@@ -52,6 +55,7 @@ namespace GeoBoardWebAPI.Controllers
             ConnectionMapping = connectionMapping;
             _backgroundJobs = backgroundJobs;
             _emailService = emailService;
+            BoardElementRepository = boardElementRepository;
         }
 
         [Authorize(Roles = "Administrator")]
@@ -202,6 +206,25 @@ namespace GeoBoardWebAPI.Controllers
             await BoardRepository.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpDelete("clear")]
+        public async Task<IActionResult> ClearBoardElements()
+        {
+            var userId = GetUserId().ToString();
+            var boardId = ConnectionMapping.GetUserBoard(userId);
+
+            if (boardId == null || boardId == "") return NotFound();
+
+            var boardElements = await BoardElementRepository.GetAll().Where(x => x.BoardId.ToString() == boardId).ToArrayAsync();
+
+            BoardElementRepository.RemoveRange(boardElements);
+            await BoardElementRepository.SaveChangesAsync();
+
+            await _hubContext.Clients.Group(boardId).SendAsync("Clear");
+
+            return Ok();
         }
 
         [Authorize]
