@@ -28,6 +28,8 @@ using Microsoft.OpenApi.Models;
 using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
+using GeoBoardWebAPI.Controllers;
+using Microsoft.AspNetCore.Http;
 
 namespace GeoBoardWebAPI
 {
@@ -247,6 +249,13 @@ namespace GeoBoardWebAPI
             // Setup the endpoints.
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("{" +
+                        "\"name\": \""+ Configuration["Info:Name"] + "\"," +
+                        "\"version\": \"" + Configuration["Info:Version"] + "\"}");
+                });
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action}/{id?}");
