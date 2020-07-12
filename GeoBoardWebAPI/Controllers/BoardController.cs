@@ -160,6 +160,12 @@ namespace GeoBoardWebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBoard([FromBody] CreateBoardMutateModel model)
         {
+            var boardNameExists = await BoardRepository.GetAll().AnyAsync((b) => b.Name.ToLower().Equals(model.Name.ToLower()));
+            if (boardNameExists)
+            {
+                ModelState.AddModelError(nameof(model.Name), "This name has already been taken. Please choose a unique name.");
+            }
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
