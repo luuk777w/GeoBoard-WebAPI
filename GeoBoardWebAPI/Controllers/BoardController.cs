@@ -171,6 +171,8 @@ namespace GeoBoardWebAPI.Controllers
 
             var board = _mapper.Map<Board>(model);
 
+            // Uppercase the first letter of the name
+            board.Name = string.Format("{0}{1}", board.Name.First().ToString().ToUpper(), board.Name.Substring(1));
             board.UserId = GetUserId().Value;
 
             BoardRepository.Add(board);

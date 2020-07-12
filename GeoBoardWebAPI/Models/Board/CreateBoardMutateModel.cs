@@ -13,6 +13,7 @@ namespace GeoBoardWebAPI.Models.Board
         /// The name of this board.
         /// </summary>
         [Required]
+        [RegularExpression(@"^[\w\d\-]*$", ErrorMessage = "The board name cannot contain special characters or spaces.")]
         public string Name { get; set; }
 
         /// <summary>
