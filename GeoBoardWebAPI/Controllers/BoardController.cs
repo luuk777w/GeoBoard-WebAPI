@@ -275,7 +275,14 @@ namespace GeoBoardWebAPI.Controllers
                 BoardName = board.Name
             };
 
-            _backgroundJobs.Enqueue(() => SendUserAddedToBoardEmail(emailModel));
+            //_backgroundJobs.Enqueue(() => SendUserAddedToBoardEmail(emailModel));
+
+            await _hubContext.Clients.User(user.Id.ToString()).SendAsync("AddedToBoard", new BoardMembershipChangedViewModel()
+            {
+                BoardId = board.Id,
+                BoardName = board.Name,
+                MutatedBy = GetUsername()
+            });
 
             return Ok(
                 _mapper.Map<List<BoardUserViewModel>>(board.Users)    
@@ -304,6 +311,13 @@ namespace GeoBoardWebAPI.Controllers
 
             board.Users.Remove(user);
             await BoardRepository.SaveChangesAsync();
+
+            await _hubContext.Clients.User(user.UserId.ToString()).SendAsync("RemovedFromBoard", new BoardMembershipChangedViewModel()
+            {
+                BoardId = board.Id,
+                BoardName = board.Name,
+                MutatedBy = GetUsername()
+            });
 
             return Ok(
                 _mapper.Map<List<BoardUserViewModel>>(board.Users)
