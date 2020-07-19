@@ -6,6 +6,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using GeoBoardWebAPI.DAL.Repositories;
 using GeoBoardWebAPI.Hubs;
+using GeoBoardWebAPI.Models.Content;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -33,7 +34,7 @@ namespace GeoBoardWebAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("{imageId}")]
-        public async Task<IActionResult> Index([FromRoute] Guid imageId)
+        public IActionResult Index([FromRoute] Guid imageId)
         {
             var storagePathSection = Configuration.GetSection("ImageStoragePath");
             if (storagePathSection == null)
@@ -54,6 +55,69 @@ namespace GeoBoardWebAPI.Controllers
             catch (Exception)
             {
                 return Problem($"Something went wrong while fetching the requested content ({imageId}).", 500);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("static/backgrounds")]
+        public IActionResult Backgrounds([FromRoute] string name)
+        {
+            var storagePathSection = Configuration.GetSection("StaticStoragePath");
+            if (storagePathSection == null)
+                return BadRequest("Something went wrong while fetchhing the image.");
+
+            string path = $"{storagePathSection.Value}/backgrounds";
+
+            try
+            {
+                List<FileViewModel> backgroundPaths = new List<FileViewModel>();
+
+                foreach (string background in Directory.EnumerateFiles(path, "*.jpg"))
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(background);
+
+                    backgroundPaths.Add(new FileViewModel
+                    {
+                        Name = fileName,
+                        Path = Url.Action(nameof(Background), new { Name = fileName })
+                    });
+                }
+
+                return Ok(backgroundPaths);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return NotFound($"Could not fetch background files.");
+            }
+            catch (Exception)
+            {
+                return Problem($"Something went wrong while fetching the backgrounds", 500);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("static/backgrounds/{name}")]
+        public IActionResult Background([FromRoute] string name)
+        {
+            var storagePathSection = Configuration.GetSection("StaticStoragePath");
+            if (storagePathSection == null)
+                return BadRequest("Something went wrong while fetchhing the image.");
+
+            string path = $"{storagePathSection.Value}/backgrounds/{name}.jpg";
+
+            try
+            {
+                FileStream image = System.IO.File.OpenRead(path);
+
+                return File(image, MediaTypeNames.Image.Jpeg);
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound($"Background '{name}' could not be found.");
+            }
+            catch (Exception)
+            {
+                return Problem($"Something went wrong while fetching the requested background ({name}).", 500);
             }
         }
     }
