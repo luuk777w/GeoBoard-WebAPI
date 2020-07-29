@@ -230,42 +230,46 @@ namespace GeoBoardWebAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("RequestPasswordReset")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
+        [HttpPost("request-password-reset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var user = await _appUserManager.FindByEmailAsync(model.UserName);
+            var user = await _appUserManager.FindByEmailAsync(model.Email);
 
-            if (user == null)
-            {
-                user = await _appUserManager.FindByNameAsync(model.UserName);
-            }
+            // Return OK when the user is not found or locked to disguise a non-existance user.
+            if (user == null) return Ok();
+            if (user.IsLocked) return Ok();
 
-            if (user == null) return BadRequest(_localizer["This account is unknown"]);
-            if (user.IsLocked) return BadRequest(_localizer["Your account has been locked"]);
-
-            _logger.LogInformation($"{user.Email} has created requested a password reset.");
+            _logger.LogInformation($"{user.Email} has requested a password reset.");
 
             var emailModel = new ResetPasswordEmailViewModel
             {
+                UserName = user.UserName,
                 Email = user.Email,
-                Token = HttpUtility.UrlEncode(await _appUserManager.GeneratePasswordResetTokenAsync(user)),
-                ReturnUrl = model.ReturnUrl
+                Token = HttpUtility.UrlEncode(await _appUserManager.GeneratePasswordResetTokenAsync(user))
             };
 
-            await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Password reset"], emailModel, "Email/ResetPassword");
+            _backgroundJobs.Enqueue(() => SendPasswordResetInstructionsEmail(emailModel));
 
             return Ok();
         }
 
+        [NonAction]
+        public async Task SendPasswordResetInstructionsEmail(ResetPasswordEmailViewModel emailModel)
+        {
+            await _emailService.SendEmailAsync(new string[] { emailModel.Email }, _localizer["Password reset instructions"], emailModel, "Email/ResetPassword");
+        }
+
         [AllowAnonymous]
-        [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordReturnViewModel model)
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var user = await _appUserManager.FindByEmailAsync(model.Email);
-            if (user == null) return BadRequest(_localizer["This account is unknown"]);
-            if (user.IsLocked) return BadRequest(_localizer["Your account has been locked"]);
+            // Return OK when the user is not found or locked to disguise a non-existance user.
+            if (user == null) return Ok();
+            if (user.IsLocked) return Ok();
 
             if (!user.EmailConfirmed)
             {
@@ -275,15 +279,24 @@ namespace GeoBoardWebAPI.Controllers
                     return BadRequest(res.Errors);
                 }
             }
+
             var result = await _appUserManager.ResetPasswordAsync(user, model.Token, model.Password);
             if (result.Succeeded)
             {
                 _logger.LogInformation($"{user.Email} has reset the password.");
-                await _emailService.SendEmailAsync(new string[] { user.Email }, _localizer["Password reset succeeded"], user, "Email/SuccessfullPasswordReset");
+
+                _backgroundJobs.Enqueue(() => SendPasswordHasBeenResetEmail(user));
+
                 return Ok(_localizer["Account password changed"]);
             }
 
             return BadRequest(result.Errors);
+        }
+
+        [NonAction]
+        public async Task SendPasswordHasBeenResetEmail(User user)
+        {
+            await _emailService.SendEmailAsync(new string[] { user.Email }, _localizer["Your password has been reset succesfully"], user, "Email/SuccessfulPasswordReset");
         }
 
         [AllowAnonymous]

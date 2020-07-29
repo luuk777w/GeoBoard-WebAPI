@@ -3,19 +3,17 @@ using GeoBoardWebAPI.Attributes;
 
 namespace GeoBoardWebAPI.Models
 {
+    public class RequestPasswordResetViewModel
+    {
+        [AppRequired]
+        [EmailAddress]
+        public string Email { get; set; }
+    }
+
     public class ResetPasswordViewModel
     {
         [AppRequired]
-        public string UserName { get; set; }
-
-        [DataType(DataType.Url)]
-        public string ReturnUrl { get; set; }
-    }
-
-    public class ResetPasswordReturnViewModel
-    {
-        [DataType(DataType.EmailAddress)]
-        [AppRequired]
+        [EmailAddress]
         public string Email { get; set; }
 
         [AppRequired]

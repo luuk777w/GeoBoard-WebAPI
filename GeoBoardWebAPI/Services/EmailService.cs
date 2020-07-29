@@ -151,11 +151,9 @@ namespace GeoBoardWebAPI.Services
 
         private SmtpClient GetClient()
         {
-            SmtpClient smtpClient = new SmtpClient();
+            SmtpClient smtpClient = new SmtpClient(_emailSettings.Host, _emailSettings.Port);
             ServicePointManager.ServerCertificateValidationCallback += delegate { return true; };
 
-            smtpClient.Host = _emailSettings.Host;
-            smtpClient.Port = _emailSettings.Port;
             smtpClient.EnableSsl = _emailSettings.EnableSsl;
             smtpClient.UseDefaultCredentials = false;
             smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;

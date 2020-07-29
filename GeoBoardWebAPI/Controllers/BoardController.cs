@@ -275,7 +275,7 @@ namespace GeoBoardWebAPI.Controllers
                 BoardName = board.Name
             };
 
-            //_backgroundJobs.Enqueue(() => SendUserAddedToBoardEmail(emailModel));
+            _backgroundJobs.Enqueue(() => SendUserAddedToBoardEmail(emailModel));
 
             await _hubContext.Clients.User(user.Id.ToString()).SendAsync("AddedToBoard", new BoardMembershipChangedViewModel()
             {
